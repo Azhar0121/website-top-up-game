@@ -5,7 +5,8 @@ namespace App\Services\PaymentGateways;
 use App\Models\ApiLog;
 use App\Models\Order;
 use App\Models\PaymentGateway;
-use Illuminate\Support\Facades\Http;
+use Midtrans\Config as MidtransConfig;
+use Midtrans\Snap;
 
 class MidtransService implements PaymentGatewayInterface
 {
@@ -14,30 +15,32 @@ class MidtransService implements PaymentGatewayInterface
     public function __construct(PaymentGateway $gateway)
     {
         $this->gateway = $gateway;
+        $this->configureSdk();
     }
 
-    protected function baseUrl(): string
+    protected function configureSdk(): void
     {
-        return $this->gateway->is_sandbox
-            ? 'https://app.sandbox.midtrans.com/snap/v1'
-            : 'https://app.midtrans.com/snap/v1';
+        MidtransConfig::$serverKey = $this->serverKey();
+        MidtransConfig::$clientKey = $this->clientKey();
+        MidtransConfig::$isProduction = ! $this->gateway->is_sandbox;
+        MidtransConfig::$isSanitized = config('midtrans.is_sanitized', true);
+        MidtransConfig::$is3ds = config('midtrans.is_3ds', true);
     }
 
-    /**
-     * Server Key dipakai sebagai username Basic Auth, password dikosongkan.
-     * Ini sesuai spesifikasi resmi Midtrans (bukan Bearer token).
-     */
     protected function serverKey(): string
     {
-        return $this->gateway->api_secret;
+        return $this->gateway->api_secret ?: config('midtrans.server_key');
     }
 
-    public function createTransaction(Order $order): array
+    protected function clientKey(): string
     {
-        $payload = [
+        return $this->gateway->api_key ?: config('midtrans.client_key');
+    }
+
+    public function createTransaction(Order $order, ?string $paymentMethodCode = null): array
+    {
+        $params = [
             'transaction_details' => [
-                // order_id dipakai Midtrans sebagai reference unik.
-                // Kita pakai invoice_number kita sendiri supaya matching webhook gampang.
                 'order_id'     => $order->invoice_number,
                 'gross_amount' => (int) $order->price,
             ],
@@ -56,37 +59,27 @@ class MidtransService implements PaymentGatewayInterface
             ],
         ];
 
-        ApiLog::record([
-            'order_id' => $order->id,
-            'type'     => 'request',
-            'payload'  => $payload,
-        ]);
+        ApiLog::record(['order_id' => $order->id, 'type' => 'request', 'payload' => $params]);
 
         try {
-            $response = Http::withBasicAuth($this->serverKey(), '')
-                ->withHeaders(['Accept' => 'application/json'])
-                ->timeout(15)
-                ->post($this->baseUrl() . '/transactions', $payload);
-
-            $data = $response->json();
+            $snapToken = Snap::getSnapToken($params);
 
             ApiLog::record([
-                'order_id'    => $order->id,
-                'type'        => 'response',
-                'response'    => $data,
-                'http_status' => $response->status(),
+                'order_id' => $order->id,
+                'type'     => 'response',
+                'response' => ['snap_token' => $snapToken],
             ]);
 
             return [
                 'reference'    => $order->invoice_number,
-                'redirect_url' => $data['redirect_url'] ?? null,
-                'snap_token'   => $data['token'] ?? null,
-                'raw'          => $data,
+                'redirect_url' => null, 
+                'snap_token'   => $snapToken,
+                'raw'          => ['snap_token' => $snapToken],
             ];
         } catch (\Throwable $e) {
             ApiLog::record([
                 'order_id' => $order->id,
-                'type'     => 'timeout',
+                'type'     => 'error',
                 'response' => ['error' => $e->getMessage()],
             ]);
 
@@ -101,9 +94,9 @@ class MidtransService implements PaymentGatewayInterface
 
     public function verifySignature(array $payload): bool
     {
-        $orderId     = $payload['order_id'] ?? '';
-        $statusCode  = $payload['status_code'] ?? '';
-        $grossAmount = $payload['gross_amount'] ?? '';
+        $orderId      = $payload['order_id'] ?? '';
+        $statusCode   = $payload['status_code'] ?? '';
+        $grossAmount  = $payload['gross_amount'] ?? '';
         $signatureKey = $payload['signature_key'] ?? '';
 
         $expected = hash('sha512', $orderId . $statusCode . $grossAmount . $this->serverKey());
@@ -129,5 +122,10 @@ class MidtransService implements PaymentGatewayInterface
             $transactionStatus === 'expire' => 'expired',
             default => 'pending',
         };
+    }
+
+    public function getAvailablePaymentMethods(int $amount): array
+    {
+        return [];
     }
 }

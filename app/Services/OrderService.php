@@ -92,6 +92,17 @@ class OrderService
     {
         $order->transitionTo(Order::STATUS_SUCCESS, $note, $actorName);
     }
+    
+    public function resendCallback(Order $order, string $actorName): void
+    {
+        $order->logs()->create([
+            'status' => $order->status,
+            'note'   => "Notifikasi diulang secara manual oleh admin: {$actorName}",
+            'actor'  => $actorName,
+        ]);
+
+        $this->sendSuccessNotification($order);
+    }
 
     protected function sendSuccessNotification(Order $order): void
     {

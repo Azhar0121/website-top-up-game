@@ -28,7 +28,7 @@ class Order extends Model
         'expired_at'      => 'datetime',
     ];
 
-    // Konstanta status, dipakai di seluruh aplikasi supaya tidak typo string manual
+    // Konstanta status
     public const STATUS_PENDING_PAYMENT = 'pending_payment';
     public const STATUS_PAID            = 'paid';
     public const STATUS_PROCESSING      = 'processing';
