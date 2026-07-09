@@ -36,14 +36,35 @@ class TopUpDemoSeeder extends Seeder
             'base_price'  => 25000,
         ]);
 
-        // 4. Provider utama (priority 1) & backup (priority 2)
+        // 4. Provider
+        $mockPrimary = Provider::create([
+            'name' => 'Mock Provider (Utama)',
+            'code' => 'mock_digiflazz',
+            'base_url' => 'https://mock.local',
+            'api_key' => 'mock',
+            'api_secret' => 'mock',
+            'priority' => 1,
+            'is_active' => true,
+        ]);
+
+        $mockBackup = Provider::create([
+            'name' => 'Mock Provider (Backup)',
+            'code' => 'mock_backup',
+            'base_url' => 'https://mock.local',
+            'api_key' => 'mock',
+            'api_secret' => 'mock',
+            'priority' => 2,
+            'is_active' => true,
+        ]);
+
         $digiflazz = Provider::create([
             'name' => 'Digiflazz',
             'code' => 'digiflazz',
-            'base_url' => 'https://api.digiflazz.com/v1', // ganti sesuai sandbox asli
-            'api_key' => 'username_sandbox_digiflazz',
-            'api_secret' => 'apikey_sandbox_digiflazz',
-            'priority' => 1,
+            'base_url' => 'https://api.digiflazz.com',
+            'api_key' => 'username_asli_nanti',
+            'api_secret' => 'apikey_asli_nanti',
+            'priority' => 3,
+            'is_active' => false,
         ]);
 
         $vip = Provider::create([
@@ -52,10 +73,25 @@ class TopUpDemoSeeder extends Seeder
             'base_url' => 'https://vip-reseller.co.id/api',
             'api_key' => 'key_sandbox_vip',
             'api_secret' => 'secret_sandbox_vip',
-            'priority' => 2, // backup, dicoba kalau Digiflazz gagal
+            'priority' => 4,
+            'is_active' => false,
         ]);
 
-        // 5. Mapping produk ke tiap provider (SKU & harga modal berbeda tiap provider)
+        // 5. Mapping produk ke provider MOCK
+        ProviderProduct::create([
+            'provider_id' => $mockPrimary->id,
+            'product_id'  => $product86->id,
+            'provider_sku_code' => 'mlbb86d-mock',
+            'cost_price'  => 22000,
+        ]);
+
+        ProviderProduct::create([
+            'provider_id' => $mockBackup->id,
+            'product_id'  => $product86->id,
+            'provider_sku_code' => 'mlbb86d-mock-backup',
+            'cost_price'  => 22500,
+        ]);
+
         ProviderProduct::create([
             'provider_id' => $digiflazz->id,
             'product_id'  => $product86->id,
@@ -70,11 +106,12 @@ class TopUpDemoSeeder extends Seeder
             'cost_price'  => 22500,
         ]);
 
+        // 6. Payment Gateway
         PaymentGateway::create([
             'name' => 'Midtrans',
             'code' => 'midtrans',
-            'api_key' => 'SB-Mid-client-xxxxxxxxxxxx',   // Client Key (dari dashboard Midtrans sandbox)
-            'api_secret' => 'SB-Mid-server-xxxxxxxxxxxx', // Server Key (RAHASIA, jangan expose ke frontend)
+            'api_key' => 'SB-Mid-client-xxxxxxxxxxxx',   // Client Key
+            'api_secret' => 'SB-Mid-server-xxxxxxxxxxxx', // Server Key
             'is_sandbox' => true,
         ]);
 
@@ -97,11 +134,11 @@ class TopUpDemoSeeder extends Seeder
             'is_active' => false,
         ]);
 
-        // 7. Voucher contoh untuk testing validasi diskon saat checkout
+        // 7. Voucher
         Voucher::create([
             'code' => 'TOPUP10',
             'type' => 'percentage',
-            'value' => 10,          // 10%
+            'value' => 10, // 10%
             'max_discount' => 5000, 
             'min_transaction' => 20000,
             'usage_limit' => 100,
@@ -113,7 +150,7 @@ class TopUpDemoSeeder extends Seeder
             'type' => 'fixed',
             'value' => 5000,
             'min_transaction' => 15000,
-            'usage_limit' => null,
+            'usage_limit' => null, // unlimited
             'is_active' => true,
         ]);
 
