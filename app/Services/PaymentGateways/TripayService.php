@@ -23,10 +23,11 @@ class TripayService implements PaymentGatewayInterface
             : 'https://tripay.co.id/api';
     }
 
-    public function createTransaction(Order $order): array
+    public function createTransaction(Order $order, ?string $paymentMethodCode = null): array
     {
         $merchantRef = $order->invoice_number;
         $amount = (int) $order->price;
+        $method = $paymentMethodCode ?? 'QRIS';
 
         $signature = hash_hmac(
             'sha256',
@@ -35,7 +36,7 @@ class TripayService implements PaymentGatewayInterface
         );
 
         $payload = [
-            'method'        => 'QRIS',
+            'method'        => $method,
             'merchant_ref'  => $merchantRef,
             'amount'        => $amount,
             'customer_name' => $order->customer_email ?? 'Customer',
@@ -106,5 +107,10 @@ class TripayService implements PaymentGatewayInterface
             'FAILED' => 'failed',
             default => 'pending',
         };
+    }
+
+    public function getAvailablePaymentMethods(int $amount): array
+    {
+        return [];
     }
 }

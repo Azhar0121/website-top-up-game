@@ -5,7 +5,10 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\Provider;
 use App\Models\ProviderProduct;
+use App\Notifications\OrderSuccessNotification;
 use App\Providers\ProviderServiceFactory;
+use App\Services\Notifications\WhatsAppNotificationService;
+use Illuminate\Support\Facades\Notification;
 
 class OrderService
 {
@@ -50,7 +53,7 @@ class OrderService
                 );
 
                 $this->sendSuccessNotification($order);
-                return; 
+                return;
             }
 
             $order->logs()->create([
@@ -92,7 +95,7 @@ class OrderService
     {
         $order->transitionTo(Order::STATUS_SUCCESS, $note, $actorName);
     }
-    
+
     public function resendCallback(Order $order, string $actorName): void
     {
         $order->logs()->create([
@@ -106,6 +109,11 @@ class OrderService
 
     protected function sendSuccessNotification(Order $order): void
     {
+        if ($order->customer_email) {
+            Notification::route('mail', $order->customer_email)
+                ->notify(new OrderSuccessNotification($order));
+        }
 
+        app(WhatsAppNotificationService::class)->sendOrderSuccess($order);
     }
 }
