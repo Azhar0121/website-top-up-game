@@ -1,19 +1,20 @@
 <?php
 
+use App\Http\Controllers\PageController;    
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('customer.home');
 });
 
-Route::get('/game/{slug}', function ($slug) {
-    return "Halaman checkout untuk game '{$slug}' akan dibangun di langkah berikutnya.";
-});
+Route::get('/game/{slug}', [PageController::class, 'gameDetail']);
+
+Route::get('/order/{invoice?}', [PageController::class, 'orderStatus']);
 
 Route::get('/cek-transaksi', function () {
-    return "Halaman cek transaksi akan dibangun di langkah berikutnya.";
+    return redirect('/order');
 });
 
 Route::get('/login', function () {
-    return "Halaman login akan dibangun di langkah berikutnya.";
+    return "Halaman login web akan dibangun di langkah berikutnya.";
 });
