@@ -21,8 +21,8 @@ class PageController extends Controller
         return view('customer.game-detail', [
             'slug' => $slug,
             'gameName' => $game->name,
-            'midtransClientKey' => $midtrans->api_key ?? '',
-            'midtransIsProduction' => $midtrans ? ! $midtrans->is_sandbox : false,
+            'midtransClientKey' => $midtrans ? config('midtrans.client_key', '') : '',
+            'midtransIsProduction' => $midtrans ? (bool) config('midtrans.is_production', false) : false,
         ]);
     }
 

@@ -135,7 +135,7 @@
             const order = result.data;
             renderOrder(order);
 
-            // Auto-refresh tiap 5 detik selama status belum final
+            // Auto-refresh tiap 10 detik selama status belum final
             if (!FINAL_STATUSES.includes(order.status)) {
                 pollTimer = setTimeout(() => loadOrder(invoice), 10000);
             }

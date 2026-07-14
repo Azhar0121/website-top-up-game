@@ -22,19 +22,19 @@ class MidtransService implements PaymentGatewayInterface
     {
         MidtransConfig::$serverKey = $this->serverKey();
         MidtransConfig::$clientKey = $this->clientKey();
-        MidtransConfig::$isProduction = ! $this->gateway->is_sandbox;
+        MidtransConfig::$isProduction = (bool) config('midtrans.is_production', false);
         MidtransConfig::$isSanitized = config('midtrans.is_sanitized', true);
         MidtransConfig::$is3ds = config('midtrans.is_3ds', true);
     }
 
     protected function serverKey(): string
     {
-        return $this->gateway->api_secret ?: config('midtrans.server_key');
+        return (string) config('midtrans.server_key');
     }
 
     protected function clientKey(): string
     {
-        return $this->gateway->api_key ?: config('midtrans.client_key');
+        return (string) config('midtrans.client_key');
     }
 
     public function createTransaction(Order $order, ?string $paymentMethodCode = null): array

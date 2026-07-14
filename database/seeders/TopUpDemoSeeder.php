@@ -110,8 +110,6 @@ class TopUpDemoSeeder extends Seeder
         PaymentGateway::create([
             'name' => 'Midtrans',
             'code' => 'midtrans',
-            'api_key' => 'SB-Mid-client-xxxxxxxxxxxx',   // Client Key
-            'api_secret' => 'SB-Mid-server-xxxxxxxxxxxx', // Server Key
             'is_sandbox' => true,
         ]);
 
