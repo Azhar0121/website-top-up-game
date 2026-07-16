@@ -43,5 +43,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/providers', [AdminProviderController::class, 'index']);
             Route::patch('/providers/{provider}/toggle', [AdminProviderController::class, 'toggle']);
             Route::patch('/providers/{provider}/priority', [AdminProviderController::class, 'updatePriority']);
+
+            Route::patch('/products/{product}/margin', [AdminProductController::class, 'updateMargin']);
+            Route::post('/products/sync-prices', [AdminProductController::class, 'syncPrices']);
         });
 });

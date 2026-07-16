@@ -13,10 +13,13 @@ class Product extends Model
 
     protected $fillable = [
         'game_id', 'category_id', 'name', 'region', 'base_price', 'stock', 'is_active', 'sort_order',
+        'margin_type', 'margin_value', 'auto_price',
     ];
 
     protected $casts = [
         'base_price' => 'decimal:2',
+        'margin_value' => 'decimal:2',
+        'auto_price' => 'boolean',
         'is_active'  => 'boolean',
     ];
 
@@ -38,8 +41,8 @@ class Product extends Model
     public function activeProviderProducts()
     {
         return $this->providerProducts()
-            ->where('is_active', true)
-            ->whereHas('provider', fn ($q) => $q->where('is_active', true))
+            ->where('provider_products.is_active', true)
+            ->whereHas('provider', fn ($q) => $q->where('providers.is_active', true))
             ->join('providers', 'providers.id', '=', 'provider_products.provider_id')
             ->orderBy('providers.priority', 'asc')
             ->select('provider_products.*');

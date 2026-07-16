@@ -1,0 +1,333 @@
+/* ==========================================================================
+   ADMIN DESIGN TOKENS
+   --------------------------------------------------------------------------
+   Sengaja BEDA dari public/css/app-custom.css (tema customer: vibrant/doodle).
+   Dashboard admin butuh kesan "enterprise, professional, minimal, clean" (ini
+   persis kata kunci di spesifikasi Style UI awal proyek) karena dipakai staff
+   berjam-jam tiap hari untuk kerja operasional, bukan buat menarik gamers.
+   ========================================================================== */
+:root {
+    --admin-primary: #5B21B6;
+    --admin-primary-dark: #431693;
+    --admin-secondary: #2563EB;
+    --admin-accent: #F59E0B;
+    --admin-success: #22C55E;
+    --admin-danger: #EF4444;
+    --admin-bg: #F8FAFC;
+    --admin-surface: #FFFFFF;
+    --admin-border: #E5E9F0;
+    --admin-text: #1E1B2E;
+    --admin-text-muted: #6B7280;
+    --admin-sidebar-bg: #1B1035;
+    --admin-sidebar-text: #C9C3DD;
+    --admin-sidebar-active: #5B21B6;
+
+    --admin-radius-lg: 16px;
+    --admin-radius-md: 10px;
+    --admin-shadow: 0 4px 16px rgba(27, 16, 53, 0.06);
+
+    --admin-font: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+body.admin-body {
+    font-family: var(--admin-font);
+    background: var(--admin-bg);
+    color: var(--admin-text);
+}
+
+/* ==========================================================================
+   SHELL LAYOUT (sidebar + topbar + content)
+   ========================================================================== */
+.admin-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.admin-sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--admin-sidebar-bg);
+    color: var(--admin-sidebar-text);
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    overflow-y: auto;
+    z-index: 1040;
+    transition: transform .25s ease;
+}
+
+.admin-sidebar-brand {
+    padding: 1.35rem 1.25rem;
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: #fff;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+}
+
+.admin-sidebar-brand .badge-enterprise {
+    font-size: .6rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    background: var(--admin-accent);
+    color: #1B1035;
+    padding: .2rem .45rem;
+    border-radius: 6px;
+    vertical-align: middle;
+}
+
+.admin-nav-section {
+    text-transform: uppercase;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    color: rgba(201, 195, 221, .5);
+    padding: 1.1rem 1.25rem .35rem;
+}
+
+.admin-nav-link {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .6rem 1.25rem;
+    color: var(--admin-sidebar-text);
+    font-weight: 600;
+    font-size: .92rem;
+    border-left: 3px solid transparent;
+    text-decoration: none;
+}
+
+.admin-nav-link:hover {
+    background: rgba(255,255,255,.05);
+    color: #fff;
+}
+
+.admin-nav-link.active {
+    background: rgba(91, 33, 182, .35);
+    border-left-color: var(--admin-accent);
+    color: #fff;
+}
+
+.admin-nav-link .bi {
+    font-size: 1.05rem;
+    width: 1.2rem;
+    text-align: center;
+}
+
+.admin-nav-link.disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+.admin-nav-soon {
+    font-size: .6rem;
+    font-weight: 700;
+    background: rgba(255,255,255,.1);
+    padding: .1rem .4rem;
+    border-radius: 999px;
+    margin-left: auto;
+}
+
+.admin-main {
+    flex: 1;
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.admin-topbar {
+    background: var(--admin-surface);
+    border-bottom: 1px solid var(--admin-border);
+    padding: .85rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.admin-topbar-toggle {
+    display: none;
+    border: none;
+    background: transparent;
+    font-size: 1.3rem;
+    color: var(--admin-text);
+}
+
+.admin-content {
+    padding: 1.5rem;
+    flex: 1;
+}
+
+.admin-sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.4);
+    z-index: 1030;
+}
+
+@media (max-width: 991.98px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+    }
+    .admin-sidebar.is-open {
+        transform: translateX(0);
+    }
+    .admin-main {
+        margin-left: 0;
+    }
+    .admin-topbar-toggle {
+        display: inline-flex;
+        align-items: center;
+    }
+    .admin-sidebar-backdrop.is-open {
+        display: block;
+    }
+}
+
+/* ==========================================================================
+   CARDS, TABLES, BADGES
+   ========================================================================== */
+.admin-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-lg);
+    box-shadow: var(--admin-shadow);
+}
+
+.admin-card-header {
+    padding: 1.1rem 1.4rem;
+    border-bottom: 1px solid var(--admin-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.admin-card-body {
+    padding: 1.4rem;
+}
+
+.admin-page-title {
+    font-weight: 800;
+    font-size: 1.35rem;
+    margin-bottom: .2rem;
+}
+
+.admin-page-subtitle {
+    color: var(--admin-text-muted);
+    font-size: .9rem;
+}
+
+.admin-table thead th {
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--admin-text-muted);
+    border-bottom-width: 1px;
+    white-space: nowrap;
+}
+
+.admin-table td {
+    vertical-align: middle;
+}
+
+.admin-thumb {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--admin-radius-md);
+    object-fit: cover;
+    background: var(--admin-bg);
+    border: 1px solid var(--admin-border);
+}
+
+.admin-thumb-placeholder {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--admin-radius-md);
+    background: var(--admin-bg);
+    border: 1px solid var(--admin-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--admin-text-muted);
+    font-weight: 700;
+    font-size: .85rem;
+}
+
+.badge-soft-success { background: rgba(34,197,94,.12); color: #15803D; font-weight: 600; }
+.badge-soft-danger { background: rgba(239,68,68,.12); color: #B91C1C; font-weight: 600; }
+.badge-soft-primary { background: rgba(91,33,182,.1); color: var(--admin-primary); font-weight: 600; }
+.badge-soft-muted { background: rgba(107,114,128,.12); color: var(--admin-text-muted); font-weight: 600; }
+
+.btn-admin-primary {
+    background: var(--admin-primary);
+    border-color: var(--admin-primary);
+    color: #fff;
+    font-weight: 700;
+    border-radius: var(--admin-radius-md);
+}
+.btn-admin-primary:hover {
+    background: var(--admin-primary-dark);
+    border-color: var(--admin-primary-dark);
+    color: #fff;
+}
+
+.admin-image-preview {
+    width: 100%;
+    max-width: 220px;
+    border-radius: var(--admin-radius-md);
+    border: 1px dashed var(--admin-border);
+    padding: .4rem;
+    background: var(--admin-bg);
+}
+
+.admin-image-preview img {
+    width: 100%;
+    border-radius: calc(var(--admin-radius-md) - 4px);
+    display: block;
+}
+
+/* ==========================================================================
+   LOGIN PAGE
+   ========================================================================== */
+.admin-login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 20% 20%, var(--admin-primary-dark), var(--admin-sidebar-bg) 65%);
+    padding: 1.5rem;
+}
+
+.admin-login-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--admin-surface);
+    border-radius: var(--admin-radius-lg);
+    box-shadow: 0 20px 50px rgba(0,0,0,.35);
+    padding: 2.25rem 2rem;
+}
+
+.admin-login-brand {
+    font-weight: 800;
+    font-size: 1.3rem;
+    margin-bottom: .25rem;
+}
+
+.admin-login-brand .badge-enterprise {
+    font-size: .6rem;
+    background: var(--admin-accent);
+    color: #1B1035;
+    padding: .2rem .45rem;
+    border-radius: 6px;
+    font-weight: 700;
+    vertical-align: middle;
+}
