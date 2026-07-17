@@ -92,20 +92,19 @@
             const initial = game.name.charAt(0).toUpperCase();
             const fallbackClass = `fallback-${index % 3}`;
 
-            const thumb = game.logo_image
-                ? `<img src="${escapeHtml(game.logo_image)}" alt="${escapeHtml(game.name)}" loading="lazy">`
+            const thumb = game.logo_image_url
+                ? `<img src="${escapeHtml(game.logo_image_url)}" alt="${escapeHtml(game.name)}" loading="lazy">`
                 : initial;
 
             return `
                 <div class="col-6 col-md-4 col-lg-2">
                     <a href="/game/${encodeURIComponent(game.slug)}" class="game-card">
-                        <div class="game-card-thumb ${game.logo_image ? '' : fallbackClass}">
+                        <div class="game-card-thumb ${game.logo_image_url ? '' : fallbackClass}">
                             ${badge}
                             ${thumb}
                         </div>
                         <div class="game-card-body">
                             <div class="game-card-title">${escapeHtml(game.name)}</div>
-                            <div class="game-card-cta">Top up sekarang →</div>
                         </div>
                     </a>
                 </div>`;

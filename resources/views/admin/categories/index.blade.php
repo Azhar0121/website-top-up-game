@@ -21,10 +21,9 @@
                         @endforeach
                     </select>
                 </form>
-                <button type="button" class="btn btn-admin-primary btn-sm" data-bs-toggle="modal" data-bs-target="#categoryModal"
-                        onclick="openCategoryModal()">
+                <a href="{{ route('admin.categories.create') }}" class="btn btn-admin-primary btn-sm">
                     <i class="bi bi-plus-lg"></i> Tambah Kategori
-                </button>
+                </a>
             </div>
         </div>
 
@@ -56,10 +55,9 @@
                                     @endif
                                 </td>
                                 <td class="text-end pe-3">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" title="Edit"
-                                            onclick='openCategoryModal(@json($category))'>
+                                    <a href="{{ route('admin.categories.edit', $category) }}" class="btn btn-sm btn-outline-secondary" title="Edit">
                                         <i class="bi bi-pencil-square"></i>
-                                    </button>
+                                    </a>
                                     <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" class="d-inline" data-confirm-delete="{{ $category->name }}">
                                         @csrf
                                         @method('DELETE')
@@ -71,7 +69,9 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-5">Belum ada kategori.</td>
+                                <td colspan="6" class="text-center text-muted py-5">
+                                    Belum ada kategori. <a href="{{ route('admin.categories.create') }}">Tambah kategori pertama</a>.
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -85,79 +85,4 @@
             </div>
         @endif
     </div>
-
-    <!-- Modal Tambah/Edit Kategori -->
-    <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="categoryForm" method="POST">
-                    @csrf
-                    <div id="categoryMethodField"></div>
-
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="categoryModalTitle">Tambah Kategori</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="modal_game_id" class="form-label fw-semibold">Game <span class="text-danger">*</span></label>
-                            <select name="game_id" id="modal_game_id" class="form-select" required>
-                                <option value="">-- Pilih Game --</option>
-                                @foreach ($games as $game)
-                                    <option value="{{ $game->id }}">{{ $game->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="modal_name" class="form-label fw-semibold">Nama Kategori <span class="text-danger">*</span></label>
-                            <input type="text" name="name" id="modal_name" class="form-control" placeholder="Diamond" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="modal_sort_order" class="form-label fw-semibold">Urutan Tampil</label>
-                            <input type="number" name="sort_order" id="modal_sort_order" class="form-control" value="0" min="0">
-                        </div>
-                        <div class="form-check form-switch">
-                            <input type="checkbox" name="is_active" id="modal_is_active" value="1" class="form-check-input" checked>
-                            <label for="modal_is_active" class="form-check-label">Aktif / Tampil</label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-admin-primary">Simpan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 @endsection
-
-@push('scripts')
-<script>
-    'use strict';
-
-    // Kategori sengaja pakai satu modal untuk create & edit (lihat komentar di
-    // CategoryController) - fungsi ini yang mengatur perbedaannya: ganti action URL,
-    // method (POST vs PUT-spoofed), judul modal, dan isi field sesuai data yang diklik.
-    function openCategoryModal(category) {
-        const form = document.getElementById('categoryForm');
-        const methodField = document.getElementById('categoryMethodField');
-        const title = document.getElementById('categoryModalTitle');
-
-        if (category) {
-            form.action = `{{ url('admin/categories') }}/${category.id}`;
-            methodField.innerHTML = '@method('PUT')';
-            title.textContent = `Edit Kategori: ${category.name}`;
-            document.getElementById('modal_game_id').value = category.game_id;
-            document.getElementById('modal_name').value = category.name;
-            document.getElementById('modal_sort_order').value = category.sort_order;
-            document.getElementById('modal_is_active').checked = !!category.is_active;
-        } else {
-            form.action = "{{ route('admin.categories.store') }}";
-            methodField.innerHTML = '';
-            title.textContent = 'Tambah Kategori';
-            form.reset();
-            document.getElementById('modal_is_active').checked = true;
-        }
-    }
-</script>
-@endpush

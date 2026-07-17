@@ -11,10 +11,10 @@ use Illuminate\Support\Facades\Validator;
 /**
  * CRUD Category (PRD 3: pembagian kategori produk - Diamond, Battle Pass, Gift Card, Skin, dsb).
  *
- * Category cuma punya 3 kolom isian (game, nama, urutan) jadi sengaja TIDAK dibuatkan halaman
- * create/edit terpisah seperti Game & Product - form tambah/edit ditaruh dalam modal Bootstrap
- * di halaman index yang sama (lihat admin.categories.index), supaya alur kerja admin lebih cepat
- * untuk data sesederhana ini.
+ * Sebelumnya form tambah/edit ditaruh dalam modal Bootstrap di halaman index. Sekarang
+ * dipindah jadi halaman create/edit terpisah (resources/views/admin/categories/form.blade.php),
+ * konsisten dengan pola Game & Product, supaya lebih gampang dipastikan berfungsi (modal
+ * sebelumnya sempat tidak ke-trigger dengan benar karena masalah data-bs-toggle/JS).
  */
 class CategoryController extends Controller
 {
@@ -37,6 +37,17 @@ class CategoryController extends Controller
     }
 
     /**
+     * GET /admin/categories/create
+     */
+    public function create()
+    {
+        $category = new Category();
+        $games = Game::orderBy('name')->get(['id', 'name']);
+
+        return view('admin.categories.form', compact('category', 'games'));
+    }
+
+    /**
      * POST /admin/categories
      */
     public function store(Request $request)
@@ -48,6 +59,16 @@ class CategoryController extends Controller
 
         return redirect()->route('admin.categories.index')
             ->with('status', 'Kategori baru berhasil ditambahkan.');
+    }
+
+    /**
+     * GET /admin/categories/{category}/edit
+     */
+    public function edit(Category $category)
+    {
+        $games = Game::orderBy('name')->get(['id', 'name']);
+
+        return view('admin.categories.form', compact('category', 'games'));
     }
 
     /**

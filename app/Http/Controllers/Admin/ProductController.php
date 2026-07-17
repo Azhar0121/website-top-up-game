@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Game;
 use App\Models\Product;
+use App\Models\Provider;
+use App\Models\ProviderProduct;
 use App\Services\PriceSyncService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 /**
  * CRUD Product untuk Dashboard Admin (PRD 3 & 4.3: katalog produk + multi-margin).
@@ -30,6 +33,7 @@ class ProductController extends Controller
         $games = Game::orderBy('name')->get(['id', 'name']);
 
         $products = Product::with(['game', 'category'])
+            ->withCount('providerProducts')
             ->when($request->filled('search'), fn ($q) => $q->where('name', 'like', '%'.$request->search.'%'))
             ->when($request->filled('game_id'), fn ($q) => $q->where('game_id', $request->game_id))
             ->orderBy('game_id')
@@ -52,11 +56,23 @@ class ProductController extends Controller
         // jadi tidak perlu request AJAX terpisah untuk ini.
         $categories = Category::orderBy('game_id')->orderBy('sort_order')->get(['id', 'game_id', 'name']);
 
-        return view('admin.products.form', compact('product', 'games', 'categories'));
+        return view('admin.products.form', compact('product', 'games', 'categories'))
+            ->with(['costPrice' => null, 'providerSkuCode' => null]);
     }
 
     /**
      * POST /admin/products
+     *
+     * PENTING: sebelumnya produk yang dibuat lewat form dashboard ini TIDAK PERNAH
+     * dipetakan ke provider manapun (tidak ada baris ProviderProduct yang dibuat).
+     * Akibatnya:
+     * - PriceSyncService::sync() selalu skip produk ini (tidak ada cost_price provider
+     *   yang bisa dipakai), makanya `php artisan products:sync-prices` cuma mengubah
+     *   harga produk dari seeder yang provider mapping-nya memang sudah ada dari awal.
+     * - Order untuk produk ini akan SELALU gagal diproses (lihat OrderService::
+     *   dispatchToProvider -> activeProviderProducts()->get() bakal kosong).
+     * Makanya sekarang form ini wajib isi `cost_price`, dan setelah produk dibuat/diupdate
+     * kita otomatis buatkan/update baris ProviderProduct untuk semua provider yang aktif.
      */
     public function store(Request $request, PriceSyncService $priceSyncService)
     {
@@ -64,13 +80,16 @@ class ProductController extends Controller
         $validated['is_active'] = $request->boolean('is_active', true);
         $validated['auto_price'] = $request->boolean('auto_price');
 
+        $costPrice = $validated['cost_price'];
+        $providerSkuCode = $validated['provider_sku_code'] ?: null;
+        unset($validated['cost_price'], $validated['provider_sku_code']); // bukan kolom tabel products
+
         $product = Product::create($validated);
 
-        // Kalau admin menyalakan auto_price tapi produk ini belum punya provider mapping
-        // sama sekali (baru dibuat), sync() akan otomatis skip (return null) - lihat
-        // PriceSyncService::sync(). Jadi aman dipanggil di sini walau belum ada apa-apa.
+        $this->syncProviderMapping($product, $costPrice, $providerSkuCode);
+
         if ($product->auto_price) {
-            $priceSyncService->sync($product);
+            $priceSyncService->sync($product->fresh());
         }
 
         return redirect()->route('admin.products.index')
@@ -85,7 +104,17 @@ class ProductController extends Controller
         $games = Game::orderBy('name')->get(['id', 'name']);
         $categories = Category::orderBy('game_id')->orderBy('sort_order')->get(['id', 'game_id', 'name']);
 
-        return view('admin.products.form', compact('product', 'games', 'categories'));
+        // Ambil mapping provider yang sudah ada (kalau ada) supaya field cost_price &
+        // SKU di form ke-prefill, bukan kosong - termasuk untuk produk lama yang dibuat
+        // SEBELUM perbaikan ini dan belum punya mapping sama sekali (akan tampil kosong,
+        // tinggal diisi lalu Simpan supaya ke-generate mapping-nya).
+        $existingMapping = $product->providerProducts()->first();
+
+        return view('admin.products.form', compact('product', 'games', 'categories'))
+            ->with([
+                'costPrice' => $existingMapping->cost_price ?? null,
+                'providerSkuCode' => $existingMapping->provider_sku_code ?? null,
+            ]);
     }
 
     /**
@@ -97,7 +126,13 @@ class ProductController extends Controller
         $validated['is_active'] = $request->boolean('is_active');
         $validated['auto_price'] = $request->boolean('auto_price');
 
+        $costPrice = $validated['cost_price'];
+        $providerSkuCode = $validated['provider_sku_code'] ?: null;
+        unset($validated['cost_price'], $validated['provider_sku_code']);
+
         $product->update($validated);
+
+        $this->syncProviderMapping($product, $costPrice, $providerSkuCode);
 
         if ($product->auto_price) {
             $priceSyncService->sync($product->fresh());
@@ -105,6 +140,28 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')
             ->with('status', "Produk \"{$product->name}\" berhasil diupdate.");
+    }
+
+    /**
+     * Buat/update baris ProviderProduct untuk SEMUA provider yang sedang aktif, memakai
+     * cost_price yang sama dari form. Dipanggil setiap kali produk dibuat/diupdate supaya
+     * produk ini benar-benar bisa diproses saat ada order masuk, dan supaya
+     * `products:sync-prices` punya cost_price untuk dihitung.
+     */
+    private function syncProviderMapping(Product $product, float $costPrice, ?string $skuCode): void
+    {
+        $activeProviders = Provider::where('is_active', true)->get();
+
+        foreach ($activeProviders as $provider) {
+            ProviderProduct::updateOrCreate(
+                ['provider_id' => $provider->id, 'product_id' => $product->id],
+                [
+                    'provider_sku_code' => $skuCode ?: Str::slug($product->name).'-'.$product->id,
+                    'cost_price' => $costPrice,
+                    'is_active' => true,
+                ]
+            );
+        }
     }
 
     /**
@@ -138,6 +195,8 @@ class ProductController extends Controller
             'sort_order'   => 'nullable|integer|min:0',
             'margin_type'  => 'required|in:fixed,percentage',
             'margin_value' => 'required|numeric|min:0',
+            'cost_price'   => 'required|numeric|min:0',
+            'provider_sku_code' => 'nullable|string|max:100',
             'is_active'    => 'nullable|boolean',
             'auto_price'   => 'nullable|boolean',
         ], [

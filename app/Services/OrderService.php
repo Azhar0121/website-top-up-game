@@ -52,6 +52,7 @@ class OrderService
                     "Berhasil diproses oleh provider {$provider->name}"
                 );
 
+                $this->decrementStock($order);
                 $this->sendSuccessNotification($order);
                 return;
             }
@@ -93,7 +94,39 @@ class OrderService
 
     public function forceSuccess(Order $order, string $actorName, string $note): void
     {
+        $wasAlreadySuccess = $order->status === Order::STATUS_SUCCESS;
+
         $order->transitionTo(Order::STATUS_SUCCESS, $note, $actorName);
+
+        // Cuma kurangi stok kalau order ini BELUM pernah berstatus success sebelumnya -
+        // mencegah stok berkurang dobel kalau admin klik "Force Success" pada order yang
+        // ternyata sudah success (misal klik dobel / redundant action).
+        if (! $wasAlreadySuccess) {
+            $this->decrementStock($order);
+        }
+    }
+
+    /**
+     * Kurangi stok produk setelah order berhasil (PRD tidak eksplisit bahas stok top up,
+     * tapi kolom `products.stock` sudah ada di database - kalau nilainya NULL berarti
+     * produk itu dianggap unlimited/tanpa batas stok (wajar untuk barang digital on-demand
+     * lewat provider), jadi sengaja tidak disentuh. Kalau nilainya angka, berarti admin
+     * sengaja membatasi stok (misal untuk flash sale/limited item), baru kita kurangi.
+     */
+    protected function decrementStock(Order $order): void
+    {
+        $product = $order->product;
+
+        if (! $product || is_null($product->stock)) {
+            return;
+        }
+
+        $product->decrement('stock', $order->quantity);
+
+        // Jaga-jaga supaya stok tidak pernah minus di database walau ada race condition.
+        if ($product->fresh()->stock < 0) {
+            $product->update(['stock' => 0]);
+        }
     }
 
     public function resendCallback(Order $order, string $actorName): void

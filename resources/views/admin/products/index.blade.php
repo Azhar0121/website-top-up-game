@@ -42,6 +42,7 @@
                             <th>Harga Jual</th>
                             <th>Margin</th>
                             <th>Stok</th>
+                            <th>Provider</th>
                             <th>Status</th>
                             <th class="text-end" style="width:140px;">Aksi</th>
                         </tr>
@@ -66,6 +67,13 @@
                                 </td>
                                 <td>{{ $product->stock ?? '∞' }}</td>
                                 <td>
+                                    @if ($product->provider_products_count > 0)
+                                        <span class="badge badge-soft-success">{{ $product->provider_products_count }} provider</span>
+                                    @else
+                                        <span class="badge badge-soft-danger" title="Order untuk produk ini akan selalu gagal sampai cost_price diisi">Belum ke-mapping</span>
+                                    @endif
+                                </td>
+                                <td>
                                     @if ($product->is_active)
                                         <span class="badge badge-soft-success">Aktif</span>
                                     @else
@@ -87,7 +95,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-5">
+                                <td colspan="9" class="text-center text-muted py-5">
                                     Belum ada produk. <a href="{{ route('admin.products.create') }}">Tambah produk pertama</a>.
                                 </td>
                             </tr>

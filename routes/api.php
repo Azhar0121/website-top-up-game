@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Admin\ProviderController as AdminProviderController;
+use App\Http\Controllers\Api\Admin\ProductController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\GameController;
 use App\Http\Controllers\Api\OrderController;
@@ -44,7 +45,7 @@ Route::prefix('v1')->group(function () {
             Route::patch('/providers/{provider}/toggle', [AdminProviderController::class, 'toggle']);
             Route::patch('/providers/{provider}/priority', [AdminProviderController::class, 'updatePriority']);
 
-            Route::patch('/products/{product}/margin', [AdminProductController::class, 'updateMargin']);
-            Route::post('/products/sync-prices', [AdminProductController::class, 'syncPrices']);
+            Route::patch('/products/{product}/margin', [ProductController::class, 'updateMargin']);
+            Route::post('/products/sync-prices', [ProductController::class, 'syncPrices']);
         });
 });

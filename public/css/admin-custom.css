@@ -1,11 +1,3 @@
-/* ==========================================================================
-   ADMIN DESIGN TOKENS
-   --------------------------------------------------------------------------
-   Sengaja BEDA dari public/css/app-custom.css (tema customer: vibrant/doodle).
-   Dashboard admin butuh kesan "enterprise, professional, minimal, clean" (ini
-   persis kata kunci di spesifikasi Style UI awal proyek) karena dipakai staff
-   berjam-jam tiap hari untuk kerja operasional, bukan buat menarik gamers.
-   ========================================================================== */
 :root {
     --admin-primary: #5B21B6;
     --admin-primary-dark: #431693;

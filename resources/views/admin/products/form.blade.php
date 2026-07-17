@@ -67,6 +67,21 @@
                     </div>
 
                     <div class="col-md-4">
+                        <label for="cost_price" class="form-label fw-semibold">Harga Modal / Cost Price (Rp) <span class="text-danger">*</span></label>
+                        <input type="number" name="cost_price" id="cost_price" value="{{ old('cost_price', $costPrice) }}"
+                               class="form-control @error('cost_price') is-invalid @enderror" min="0" step="1" required>
+                        @error('cost_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="form-text">Harga modal dari provider. Dipakai untuk hitung margin, dan otomatis dipetakan ke semua provider yang sedang aktif supaya produk ini benar-benar bisa diproses saat ada order masuk.</div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="provider_sku_code" class="form-label fw-semibold">Kode SKU Provider</label>
+                        <input type="text" name="provider_sku_code" id="provider_sku_code" value="{{ old('provider_sku_code', $providerSkuCode) }}"
+                               class="form-control @error('provider_sku_code') is-invalid @enderror" placeholder="Kosongkan untuk auto-generate">
+                        @error('provider_sku_code') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="col-md-4">
                         <label for="base_price" class="form-label fw-semibold">Harga Jual (Rp) <span class="text-danger">*</span></label>
                         <input type="number" name="base_price" id="base_price" value="{{ old('base_price', $product->base_price) }}"
                                class="form-control @error('base_price') is-invalid @enderror" min="0" step="1" required>
