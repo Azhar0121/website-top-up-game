@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\GameController as AdminGameController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController;
 
 
@@ -39,6 +40,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', function () {
             return view('admin.dashboard');
         })->name('dashboard');
+
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+        Route::post('/orders/{order}/retry', [AdminOrderController::class, 'retry'])->name('orders.retry');
+        Route::post('/orders/{order}/force-success', [AdminOrderController::class, 'forceSuccess'])->name('orders.force-success');
+        Route::post('/orders/{order}/resend-callback', [AdminOrderController::class, 'resendCallback'])->name('orders.resend-callback');
 
         // CRUD Game (PRD 6: menu "Games & Products" -> Categories, dst)
         Route::resource('games', AdminGameController::class)->except(['show']);

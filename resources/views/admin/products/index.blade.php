@@ -83,7 +83,7 @@
                                 <td class="text-end pe-3">
                                     <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-sm btn-outline-secondary" title="Edit">
                                         <i class="bi bi-pencil-square"></i>
-                                    </a>
+                        ~            </a>
                                     <form action="{{ route('admin.products.destroy', $product) }}" method="POST" class="d-inline" data-confirm-delete="{{ $product->name }}">
                                         @csrf
                                         @method('DELETE')

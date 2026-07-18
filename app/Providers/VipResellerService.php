@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Providers;
+namespace App\Providers;
 
 use App\Models\ApiLog;
 use App\Models\Order;

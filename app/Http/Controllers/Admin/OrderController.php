@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
@@ -31,19 +31,36 @@ class OrderController extends Controller
         $orders = Order::query()
             ->with(['product.game', 'provider', 'payment.paymentGateway'])
             ->when($validated['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
-            ->when($validated['search'] ?? null, fn ($query, $search) => $query->where('invoice_number', 'like', "%{$search}%"))
+            ->when($validated['search'] ?? null, function ($query, $search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('invoice_number', 'like', "%{$search}%")
+                        ->orWhere('customer_email', 'like', "%{$search}%")
+                        ->orWhere('customer_whatsapp', 'like', "%{$search}%")
+                        ->orWhere('target_game_id', 'like', "%{$search}%");
+                });
+            })
             ->latest()
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
-        return response()->json(['success' => true, 'data' => $orders]);
+        return view('admin.orders.index', [
+            'orders' => $orders,
+            'statuses' => self::STATUSES,
+        ]);
     }
 
     public function show(Order $order)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $order->load(['product.game', 'provider', 'payment.paymentGateway', 'logs', 'apiLogs']),
+        $order->load([
+            'product.game',
+            'product.category',
+            'provider',
+            'payment.paymentGateway',
+            'logs' => fn ($query) => $query->latest(),
+            'apiLogs' => fn ($query) => $query->latest()->limit(10),
         ]);
+
+        return view('admin.orders.show', compact('order'));
     }
 
     public function retry(Order $order, Request $request, OrderService $orderService)
@@ -51,10 +68,11 @@ class OrderController extends Controller
         try {
             $orderService->manualRetry($order, $this->actorName($request));
         } catch (\RuntimeException $exception) {
-            return response()->json(['success' => false, 'message' => $exception->getMessage()], 422);
+            return back()->with('error', $exception->getMessage());
         }
 
-        return response()->json(['success' => true, 'message' => 'Retry provider telah dijalankan.']);
+        return redirect()->route('admin.orders.show', $order)
+            ->with('status', 'Retry provider telah dijalankan. Periksa riwayat order untuk hasilnya.');
     }
 
     public function forceSuccess(Order $order, Request $request, OrderService $orderService)
@@ -66,21 +84,23 @@ class OrderController extends Controller
         try {
             $orderService->forceSuccess($order, $this->actorName($request), $validated['note']);
         } catch (\RuntimeException $exception) {
-            return response()->json(['success' => false, 'message' => $exception->getMessage()], 422);
+            return back()->with('error', $exception->getMessage());
         }
 
-        return response()->json(['success' => true, 'message' => 'Order ditandai sukses secara manual.']);
+        return redirect()->route('admin.orders.show', $order)
+            ->with('status', 'Order ditandai Success secara manual dan tercatat pada riwayat.');
     }
 
     public function resendCallback(Order $order, Request $request, OrderService $orderService)
     {
         if ($order->status !== Order::STATUS_SUCCESS) {
-            return response()->json(['success' => false, 'message' => 'Order belum berstatus Success.'], 422);
+            return back()->with('error', 'Notifikasi hanya dapat dikirim ulang untuk order berstatus Success.');
         }
 
         $orderService->resendCallback($order, $this->actorName($request));
 
-        return response()->json(['success' => true, 'message' => 'Notifikasi dikirim ulang.']);
+        return redirect()->route('admin.orders.show', $order)
+            ->with('status', 'Notifikasi sukses dikirim ulang ke pelanggan.');
     }
 
     private function actorName(Request $request): string

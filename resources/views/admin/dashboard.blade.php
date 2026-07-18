@@ -13,12 +13,27 @@
     </div>
 
     <div class="row g-3">
-        <div class="col-md-4">
-            <a href="{{ route('admin.games.index') }}" class="text-decoration-none">
-                <div class="admin-card admin-card-body h-100">
+        <div class="col-md-3">
+            <a href="{{ route('admin.orders.index') }}" class="text-decoration-none">
+                <div class="admin-card admin-card-accent admin-card-body h-100" style="border-top-color: var(--admin-primary);">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="admin-thumb-placeholder" style="width:52px;height:52px;">
-                            <i class="bi bi-controller fs-4" style="color: var(--admin-primary);"></i>
+                        <div class="admin-icon-badge" style="background: linear-gradient(135deg, #5B21B6, #431693);">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark">Orders</div>
+                            <div class="text-muted small">Transaksi, retry, force success</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('admin.games.index') }}" class="text-decoration-none">
+                <div class="admin-card admin-card-accent accent-yellow admin-card-body h-100">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="admin-icon-badge accent-yellow">
+                            <i class="bi bi-controller"></i>
                         </div>
                         <div>
                             <div class="fw-bold text-dark">Games</div>
@@ -28,12 +43,12 @@
                 </div>
             </a>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <a href="{{ route('admin.categories.index') }}" class="text-decoration-none">
-                <div class="admin-card admin-card-body h-100">
+                <div class="admin-card admin-card-accent accent-pink admin-card-body h-100">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="admin-thumb-placeholder" style="width:52px;height:52px;">
-                            <i class="bi bi-tags-fill fs-4" style="color: var(--admin-primary);"></i>
+                        <div class="admin-icon-badge accent-pink">
+                            <i class="bi bi-tags-fill"></i>
                         </div>
                         <div>
                             <div class="fw-bold text-dark">Categories</div>
@@ -43,12 +58,12 @@
                 </div>
             </a>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <a href="{{ route('admin.products.index') }}" class="text-decoration-none">
-                <div class="admin-card admin-card-body h-100">
+                <div class="admin-card admin-card-accent accent-mint admin-card-body h-100">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="admin-thumb-placeholder" style="width:52px;height:52px;">
-                            <i class="bi bi-box-seam-fill fs-4" style="color: var(--admin-primary);"></i>
+                        <div class="admin-icon-badge accent-mint">
+                            <i class="bi bi-box-seam-fill"></i>
                         </div>
                         <div>
                             <div class="fw-bold text-dark">Products &amp; SKUs</div>

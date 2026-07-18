@@ -17,13 +17,11 @@
         </a>
 
         <div class="admin-nav-section">Orders</div>
-        <a href="#" class="admin-nav-link disabled" tabindex="-1">
+        <a href="{{ route('admin.orders.index') }}" class="admin-nav-link {{ request()->routeIs('admin.orders.*') && ! request('status') ? 'active' : '' }}">
             <i class="bi bi-receipt"></i> Transactions
-            <span class="admin-nav-soon">Segera</span>
         </a>
-        <a href="#" class="admin-nav-link disabled" tabindex="-1">
+        <a href="{{ route('admin.orders.index', ['status' => 'failed']) }}" class="admin-nav-link {{ request()->routeIs('admin.orders.*') && request('status') === 'failed' ? 'active' : '' }}">
             <i class="bi bi-arrow-repeat"></i> Retry Queue
-            <span class="admin-nav-soon">Segera</span>
         </a>
 
         <div class="admin-nav-section">Games &amp; Products</div>

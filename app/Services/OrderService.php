@@ -3,20 +3,48 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\Provider;
 use App\Models\ProviderProduct;
 use App\Notifications\OrderSuccessNotification;
 use App\Providers\ProviderServiceFactory;
 use App\Services\Notifications\WhatsAppNotificationService;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\DB;
 
 class OrderService
 {
-    public function processAfterPayment(Order $order): void
+    public function processAfterPayment(Order $order): bool
     {
-        $order->transitionTo(Order::STATUS_PAID, 'Pembayaran dikonfirmasi oleh payment gateway');
+        $canBeProcessed = DB::transaction(function () use ($order) {
+            $lockedOrder = Order::query()->lockForUpdate()->findOrFail($order->id);
 
-        $this->dispatchToProvider($order);
+            if ($lockedOrder->status !== Order::STATUS_PENDING_PAYMENT) {
+                return false;
+            }
+
+            try {
+                $this->decrementStock($lockedOrder);
+            } catch (\RuntimeException $exception) {
+                $lockedOrder->transitionTo(
+                    Order::STATUS_FAILED,
+                    'Pembayaran diterima, tetapi stok tidak tersedia. Perlu tindak lanjut refund oleh admin.'
+                );
+
+                return false;
+            }
+
+            $lockedOrder->update(['paid_at' => now()]);
+            $lockedOrder->transitionTo(Order::STATUS_PAID, 'Pembayaran dikonfirmasi oleh payment gateway');
+
+            return true;
+        });
+
+        if (! $canBeProcessed) {
+            return false;
+        }
+
+        return true;
     }
 
     public function dispatchToProvider(Order $order): void
@@ -52,7 +80,7 @@ class OrderService
                     "Berhasil diproses oleh provider {$provider->name}"
                 );
 
-                $this->decrementStock($order);
+                $order->update(['completed_at' => now()]);
                 $this->sendSuccessNotification($order);
                 return;
             }
@@ -94,39 +122,42 @@ class OrderService
 
     public function forceSuccess(Order $order, string $actorName, string $note): void
     {
+        if (! in_array($order->status, [Order::STATUS_PAID, Order::STATUS_PROCESSING, Order::STATUS_FAILED], true)) {
+            throw new \RuntimeException('Force Success hanya dapat dilakukan untuk order yang sudah dibayar atau gagal diproses provider.');
+        }
+
         $wasAlreadySuccess = $order->status === Order::STATUS_SUCCESS;
 
         $order->transitionTo(Order::STATUS_SUCCESS, $note, $actorName);
 
-        // Cuma kurangi stok kalau order ini BELUM pernah berstatus success sebelumnya -
-        // mencegah stok berkurang dobel kalau admin klik "Force Success" pada order yang
-        // ternyata sudah success (misal klik dobel / redundant action).
         if (! $wasAlreadySuccess) {
-            $this->decrementStock($order);
+            $order->update(['completed_at' => now()]);
         }
     }
 
     /**
-     * Kurangi stok produk setelah order berhasil (PRD tidak eksplisit bahas stok top up,
-     * tapi kolom `products.stock` sudah ada di database - kalau nilainya NULL berarti
-     * produk itu dianggap unlimited/tanpa batas stok (wajar untuk barang digital on-demand
-     * lewat provider), jadi sengaja tidak disentuh. Kalau nilainya angka, berarti admin
-     * sengaja membatasi stok (misal untuk flash sale/limited item), baru kita kurangi.
+     * Kurangi stok terbatas segera setelah payment tervalidasi. Stok NULL berarti unlimited
+     * sehingga tidak diubah. Timestamp pada order membuat proses webhook yang diulang tetap
+     * idempoten dan mencegah stok terpotong dua kali.
      */
     protected function decrementStock(Order $order): void
     {
-        $product = $order->product;
+        if ($order->stock_deducted_at) {
+            return;
+        }
+
+        $product = Product::query()->lockForUpdate()->find($order->product_id);
 
         if (! $product || is_null($product->stock)) {
             return;
         }
 
-        $product->decrement('stock', $order->quantity);
-
-        // Jaga-jaga supaya stok tidak pernah minus di database walau ada race condition.
-        if ($product->fresh()->stock < 0) {
-            $product->update(['stock' => 0]);
+        if ($product->stock < $order->quantity) {
+            throw new \RuntimeException('Stok produk tidak mencukupi.');
         }
+
+        $product->decrement('stock', $order->quantity);
+        $order->update(['stock_deducted_at' => now()]);
     }
 
     public function resendCallback(Order $order, string $actorName): void

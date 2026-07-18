@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\ProcessTopUpOrder;
 use App\Models\ApiLog;
 use App\Models\Order;
 use App\Models\Payment;
@@ -132,9 +131,9 @@ class PaymentController extends Controller
         $order = $payment->order;
 
         if ($mappedStatus === 'paid' && ! $alreadyPaid && $order->status === Order::STATUS_PENDING_PAYMENT) {
-            $order->transitionTo(Order::STATUS_PAID, "Konfirmasi pembayaran diterima via webhook {$gateway->name}");
-
-            ProcessTopUpOrder::dispatch($order);
+            if ($orderService->processAfterPayment($order)) {
+                \App\Jobs\ProcessTopUpOrder::dispatch($order->fresh());
+            }
         } elseif (in_array($mappedStatus, ['failed', 'expired']) && $order->status === Order::STATUS_PENDING_PAYMENT) {
             $order->transitionTo(
                 $mappedStatus === 'expired' ? Order::STATUS_EXPIRED : Order::STATUS_CANCELLED,

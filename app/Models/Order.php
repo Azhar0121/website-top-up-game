@@ -16,7 +16,7 @@ class Order extends Model
         'invoice_number', 'user_id', 'product_id', 'provider_id',
         'target_game_id', 'target_server_id', 'customer_email', 'customer_whatsapp',
         'quantity', 'price', 'cost_price', 'voucher_code', 'discount_amount',
-        'status', 'paid_at', 'completed_at', 'expired_at',
+        'status', 'paid_at', 'completed_at', 'expired_at', 'stock_deducted_at',
     ];
 
     protected $casts = [
@@ -26,6 +26,7 @@ class Order extends Model
         'paid_at'         => 'datetime',
         'completed_at'    => 'datetime',
         'expired_at'      => 'datetime',
+        'stock_deducted_at' => 'datetime',
     ];
 
     // Konstanta status
