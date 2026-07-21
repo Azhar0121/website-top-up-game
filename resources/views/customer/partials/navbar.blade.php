@@ -31,11 +31,30 @@
                     </a>
                 </li>
 
-                <li class="nav-item ms-lg-3">
-                    <a class="btn app-btn-outline" href="{{ route('login') }}">
-                        Masuk
-                    </a>
-                </li>
+                @auth
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('account.index') }}">
+                            Akun Saya
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-3">
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn app-btn-outline">Keluar</button>
+                        </form>
+                    </li>
+                @else
+                    <li class="nav-item ms-lg-2">
+                        <a class="nav-link" href="{{ route('register') }}">
+                            Daftar
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <a class="btn app-btn-outline" href="{{ route('login') }}">
+                            Masuk
+                        </a>
+                    </li>
+                @endauth
             </ul>
 
         </div>

@@ -8,6 +8,7 @@
     const resultEl = document.getElementById('order-result');
 
     const FINAL_STATUSES = ['success', 'failed', 'expired', 'refunded', 'cancelled'];
+    const REPEATABLE_STATUSES = ['success', 'failed', 'expired', 'cancelled'];
 
     const STATUS_LABEL = {
         pending_payment: { text: 'Menunggu Pembayaran', color: '#6B6482', emoji: '⏳' },
@@ -19,6 +20,9 @@
         refunded: { text: 'Dana Dikembalikan', color: '#6B6482', emoji: '↩️' },
         cancelled: { text: 'Dibatalkan', color: '#6B6482', emoji: '🚫' },
     };
+
+    const HAPPY_PATH = ['pending_payment', 'paid', 'processing', 'success'];
+    const STEP_TITLES = ['Order Dibuat', 'Pembayaran Diterima', 'Sedang Diproses', 'Selesai'];
 
     let pollTimer = null;
 
@@ -54,8 +58,61 @@
             </div>`;
     }
 
+    function buildTrackerSteps(status) {
+        const happyIndex = HAPPY_PATH.indexOf(status);
+        const negativeFinal = { failed: 'Gagal', expired: 'Kedaluwarsa', cancelled: 'Dibatalkan', refunded: 'Dana Dikembalikan' };
+
+        return STEP_TITLES.map((title, i) => {
+            const isLastStep = i === STEP_TITLES.length - 1;
+
+            if (isLastStep && negativeFinal[status]) {
+                return { title: negativeFinal[status], state: 'failed', icon: '✕' };
+            }
+            if (isLastStep && status === 'success') {
+                return { title: 'Berhasil', state: 'done', icon: '✓' };
+            }
+
+            if (happyIndex !== -1) {
+                if (i < happyIndex) return { title, state: 'done', icon: '✓' };
+                if (i === happyIndex) return { title, state: 'current', icon: String(i + 1) };
+                return { title, state: 'upcoming', icon: String(i + 1) };
+            }
+
+            if (i === 0) return { title, state: 'done', icon: '✓' };
+            if (status === 'expired') return { title, state: 'upcoming', icon: String(i + 1) };
+            return { title, state: 'done', icon: '✓' };
+        });
+    }
+
+    function renderTracker(status) {
+        const steps = buildTrackerSteps(status);
+
+        return `
+            <div class="status-tracker">
+                ${steps.map((step) => `
+                    <div class="status-tracker-step is-${step.state}">
+                        <div class="status-tracker-dot">${step.icon}</div>
+                        <div class="status-tracker-label">${escapeHtml(step.title)}</div>
+                    </div>
+                `).join('')}
+            </div>`;
+    }
+
+    function repeatOrderUrl(order) {
+        if (!order.product || !order.product.game) return null;
+
+        const params = new URLSearchParams({
+            repeat_product_id: order.product_id,
+            target_game_id: order.target_game_id || '',
+            target_server_id: order.target_server_id || '',
+        });
+
+        return `/game/${encodeURIComponent(order.product.game.slug)}?${params.toString()}`;
+    }
+
     function renderOrder(order) {
         const statusInfo = STATUS_LABEL[order.status] || { text: order.status, color: '#6B6482', emoji: 'ℹ️' };
+        const repeatUrl = REPEATABLE_STATUSES.includes(order.status) ? repeatOrderUrl(order) : null;
 
         const timelineHtml = (order.logs || [])
             .slice()
@@ -83,6 +140,8 @@
                     </span>
                 </div>
 
+                ${renderTracker(order.status)}
+
                 <hr>
 
                 <div class="d-flex justify-content-between small mb-2">
@@ -102,10 +161,14 @@
                     <div class="sla-note mt-3 mb-0">
                         Belum menyelesaikan pembayaran? <a href="/">Kembali ke halaman utama</a> untuk coba lagi.
                     </div>` : ''}
-                ${!['success','failed','expired','refunded','cancelled'].includes(order.status) ? `
+                ${!FINAL_STATUSES.includes(order.status) ? `
                     <div class="text-center text-muted small mt-3">
                         <span class="spinner-border spinner-border-sm me-1"></span> Memantau status secara otomatis...
                     </div>` : ''}
+
+                ${repeatUrl ? `
+                    <a href="${repeatUrl}" class="btn app-btn-cta w-100 mt-3">Pesan Lagi</a>
+                ` : ''}
             </div>
 
             <h2 class="section-heading mb-3" style="font-size:1.1rem;">Riwayat Status</h2>

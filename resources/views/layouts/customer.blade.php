@@ -7,6 +7,7 @@
     <meta name="description" content="@yield('meta_description', 'Top up Diamond, Voucher, dan item game favoritmu. Proses otomatis 1-3 menit.')">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -29,6 +30,7 @@
     <script>
         window.APP_CONFIG = {
             apiBase: '{{ url('/api/v1') }}',
+            user: @auth {{ Illuminate\Support\Js::from(['name' => auth()->user()->name, 'email' => auth()->user()->email]) }} @else null @endauth,
         };
     </script>
     @stack('scripts')

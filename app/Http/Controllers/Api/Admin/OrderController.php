@@ -6,85 +6,76 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
-    private const STATUSES = [
-        Order::STATUS_PENDING_PAYMENT,
-        Order::STATUS_PAID,
-        Order::STATUS_PROCESSING,
-        Order::STATUS_SUCCESS,
-        Order::STATUS_FAILED,
-        Order::STATUS_EXPIRED,
-        Order::STATUS_REFUNDED,
-        Order::STATUS_CANCELLED,
-    ];
-
     public function index(Request $request)
     {
-        $validated = $request->validate([
-            'status' => ['nullable', Rule::in(self::STATUSES)],
-            'search' => ['nullable', 'string', 'max:100'],
-        ]);
+        $query = Order::query()->with(['product', 'provider', 'user']);
 
-        $orders = Order::query()
-            ->with(['product.game', 'provider', 'payment.paymentGateway'])
-            ->when($validated['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
-            ->when($validated['search'] ?? null, fn ($query, $search) => $query->where('invoice_number', 'like', "%{$search}%"))
-            ->latest()
-            ->paginate(20);
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('search')) {
+            $query->where('invoice_number', 'like', '%' . $request->search . '%');
+        }
+
+        $orders = $query->latest()->paginate($request->input('per_page', 20));
 
         return response()->json(['success' => true, 'data' => $orders]);
     }
 
     public function show(Order $order)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $order->load(['product.game', 'provider', 'payment.paymentGateway', 'logs', 'apiLogs']),
-        ]);
-    }
+        $order->load(['product', 'provider', 'user', 'logs', 'payment', 'apiLogs']);
 
+        return response()->json(['success' => true, 'data' => $order]);
+    }
+    
     public function retry(Order $order, Request $request, OrderService $orderService)
     {
+        $actorName = $request->user()->name ?? 'admin';
+
         try {
-            $orderService->manualRetry($order, $this->actorName($request));
-        } catch (\RuntimeException $exception) {
-            return response()->json(['success' => false, 'message' => $exception->getMessage()], 422);
+            $orderService->manualRetry($order, $actorName);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
 
-        return response()->json(['success' => true, 'message' => 'Retry provider telah dijalankan.']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Order sedang diproses ulang',
+            'data' => $order->fresh(),
+        ]);
     }
 
     public function forceSuccess(Order $order, Request $request, OrderService $orderService)
     {
-        $validated = $request->validate([
-            'note' => ['required', 'string', 'min:5', 'max:500'],
+        $validator = Validator::make($request->all(), [
+            'note' => 'required|string|max:255',
         ]);
 
-        try {
-            $orderService->forceSuccess($order, $this->actorName($request), $validated['note']);
-        } catch (\RuntimeException $exception) {
-            return response()->json(['success' => false, 'message' => $exception->getMessage()], 422);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-        return response()->json(['success' => true, 'message' => 'Order ditandai sukses secara manual.']);
+        $actorName = $request->user()->name ?? 'admin';
+        $orderService->forceSuccess($order, $actorName, $request->note);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order berhasil diubah menjadi Success',
+            'data' => $order->fresh(),
+        ]);
     }
 
     public function resendCallback(Order $order, Request $request, OrderService $orderService)
     {
-        if ($order->status !== Order::STATUS_SUCCESS) {
-            return response()->json(['success' => false, 'message' => 'Order belum berstatus Success.'], 422);
-        }
+        $actorName = $request->user()->name ?? 'admin';
+        $orderService->resendCallback($order, $actorName);
 
-        $orderService->resendCallback($order, $this->actorName($request));
-
-        return response()->json(['success' => true, 'message' => 'Notifikasi dikirim ulang.']);
-    }
-
-    private function actorName(Request $request): string
-    {
-        return $request->user()?->name ?: 'admin';
+        return response()->json(['success' => true, 'message' => 'Notifikasi berhasil diulang']);
     }
 }

@@ -95,7 +95,7 @@
 
         productGrid.innerHTML = products.map((product) => `
             <div class="col-6 col-md-4">
-                <button type="button" class="product-card" data-product='${JSON.stringify(product)}'>
+                <button type="button" class="product-card" data-product-id="${product.id}" data-product='${JSON.stringify(product)}'>
                     <div class="product-card-name">${escapeHtml(product.name)}</div>
                     <div class="product-card-price">${formatRupiah(product.base_price)}</div>
                 </button>
@@ -133,10 +133,48 @@
             allCategories = game.categories || [];
             renderCategoryTabs(allCategories);
             renderProducts(allCategories.length ? allCategories[0].products : []);
+            prefillLoggedInUser();
+            applyRepeatOrder();
         } catch (err) {
             console.error(err);
             gameHeader.innerHTML = `<div class="catalog-state"><div class="catalog-state-emoji">⚠️</div><p class="fw-bold mb-0">Gagal memuat data game</p></div>`;
         }
+    }
+
+    function prefillLoggedInUser() {
+        if (window.APP_CONFIG.user && window.APP_CONFIG.user.email) {
+            document.getElementById('customer_email').value = window.APP_CONFIG.user.email;
+        }
+    }
+
+    function applyRepeatOrder() {
+        const params = new URLSearchParams(window.location.search);
+        const repeatProductId = params.get('repeat_product_id');
+        if (!repeatProductId) return;
+
+        const targetGameIdInput = document.getElementById('target_game_id');
+        const targetServerIdInput = document.getElementById('target_server_id');
+        if (params.get('target_game_id')) targetGameIdInput.value = params.get('target_game_id');
+        if (params.get('target_server_id')) targetServerIdInput.value = params.get('target_server_id');
+
+        const ownerCategory = allCategories.find((cat) =>
+            (cat.products || []).some((p) => String(p.id) === String(repeatProductId))
+        );
+        if (!ownerCategory) return;
+
+        const tabBtn = categoryTabs.querySelector(`[data-category-id="${ownerCategory.id}"]`);
+        if (tabBtn) {
+            tabBtn.click();
+        } else {
+            renderProducts(ownerCategory.products);
+        }
+
+        requestAnimationFrame(() => {
+            const card = productGrid.querySelector(`[data-product-id="${repeatProductId}"]`);
+            if (card) card.click();
+        });
+
+        document.getElementById('checkout-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     async function handleSubmit(e) {

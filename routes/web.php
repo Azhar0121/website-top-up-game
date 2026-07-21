@@ -8,6 +8,9 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\GameController as AdminGameController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Customer\AccountController;
 
 
 Route::get('/', function () {
@@ -22,7 +25,16 @@ Route::get('/cek-transaksi', function () {
     return redirect('/order');
 });
 
-Route::redirect('/login', '/admin/login')->name('login');
+// ==================== AUTH (customer & staff, satu form yang sama) ====================
+Route::get('/login', [LoginController::class, 'show'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:10,1')->name('login.submit');
+Route::get('/register', [RegisterController::class, 'show'])->name('register');
+Route::post('/register', [RegisterController::class, 'store'])->middleware('throttle:10,1')->name('register.submit');
+Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/akun', [AccountController::class, 'index'])->name('account.index');
+});
 
 Route::prefix('admin')->name('admin.')->group(function () {
 

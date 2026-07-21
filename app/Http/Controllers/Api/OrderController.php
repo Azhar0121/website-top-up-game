@@ -35,8 +35,18 @@ class OrderController extends Controller
             return response()->json(['success' => false, 'message' => 'Produk tidak tersedia'], 400);
         }
 
-        $role = Auth::check() ? (Auth::user()->role ?? 'customer') : 'customer';
         $quantity = $request->input('quantity', 1);
+
+        if (! is_null($product->stock) && $quantity > $product->stock) {
+            return response()->json([
+                'success' => false,
+                'message' => $product->stock > 0
+                    ? "Stok tidak cukup. Sisa stok: {$product->stock}."
+                    : 'Stok produk ini sedang habis.',
+            ], 400);
+        }
+
+        $role = Auth::check() ? (Auth::user()->role ?? 'customer') : 'customer';
         $subtotal = $product->priceForRole($role) * $quantity;
         $discountAmount = 0;
         $voucherCode = $request->filled('voucher_code') ? strtoupper($request->voucher_code) : null;
@@ -111,7 +121,7 @@ class OrderController extends Controller
 
     public function show(string $invoice)
     {
-        $order = Order::with(['product', 'provider', 'logs'])
+        $order = Order::with(['product.game', 'provider', 'logs'])
             ->where('invoice_number', $invoice)
             ->firstOrFail();
 

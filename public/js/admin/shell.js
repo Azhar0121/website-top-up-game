@@ -1,9 +1,3 @@
-/**
- * Admin Shell - dipakai di semua halaman /admin/* (lihat layouts/admin.blade.php)
- * Tanggung jawab:
- * 1. Toggle sidebar di layar kecil (mobile off-canvas)
- * 2. Konfirmasi sebelum submit form delete (dipasang lewat atribut data-confirm-delete)
- */
 (function () {
     'use strict';
 
