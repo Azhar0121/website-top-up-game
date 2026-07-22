@@ -1,25 +1,25 @@
 :root {
-    --admin-primary: #5B21B6;
-    --admin-primary-dark: #431693;
-    --admin-secondary: #2563EB;
-    --admin-accent: #FFC93C;
+    --admin-primary: #FF5D8F;
+    --admin-primary-dark: #D2266D;
+    --admin-secondary: #E11D48;
+    --admin-accent: #FF91B0;
     --admin-pink: #FF5D8F;
     --admin-mint: #34E4B8;
     --admin-success: #22C55E;
     --admin-danger: #EF4444;
-    --admin-bg: #F7F5FC;
+    --admin-bg: #F4EAF0;
     --admin-surface: #FFFFFF;
-    --admin-border: #E9E5F5;
-    --admin-text: #1E1B2E;
-    --admin-text-muted: #6B6482;
-    --admin-sidebar-bg: #1B1035;
-    --admin-sidebar-bg-2: #2D1B54;
-    --admin-sidebar-text: #C9C3DD;
-    --admin-sidebar-active: #5B21B6;
+    --admin-border: #F1D6E3;
+    --admin-text: #2F1F2D;
+    --admin-text-muted: #7B6079;
+    --admin-sidebar-bg: #2E001D;
+    --admin-sidebar-bg-2: #7A002E;
+    --admin-sidebar-text: #FFE4F1;
+    --admin-sidebar-active: #FF3D7A;
 
     --admin-radius-lg: 16px;
     --admin-radius-md: 10px;
-    --admin-shadow: 0 4px 16px rgba(91, 33, 182, 0.08);
+    --admin-shadow: 0 4px 22px rgba(255, 93, 143, 0.15);
 
     --admin-font: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
@@ -41,7 +41,7 @@ body.admin-body {
 .admin-sidebar {
     width: 260px;
     flex-shrink: 0;
-    background: linear-gradient(180deg, var(--admin-sidebar-bg-2) 0%, var(--admin-sidebar-bg) 45%);
+    background: linear-gradient(180deg, var(--admin-sidebar-bg-2) 0%, var(--admin-sidebar-bg) 48%);
     color: var(--admin-sidebar-text);
     position: fixed;
     top: 0;
@@ -49,6 +49,7 @@ body.admin-body {
     bottom: 0;
     overflow-y: auto;
     z-index: 1040;
+    box-shadow: inset 0 0 60px rgba(255, 45, 110, 0.18);
     transition: transform .25s ease;
 }
 
@@ -56,8 +57,8 @@ body.admin-body {
     padding: 1.35rem 1.25rem;
     font-weight: 800;
     font-size: 1.15rem;
-    color: #fff;
-    border-bottom: 1px solid rgba(255,255,255,.08);
+    color: #FFF;
+    border-bottom: 1px solid rgba(255, 255, 255, .14);
     display: flex;
     align-items: center;
     gap: .6rem;
@@ -67,10 +68,10 @@ body.admin-body {
     font-size: .6rem;
     font-weight: 700;
     letter-spacing: .04em;
-    background: var(--admin-accent);
-    color: #1B1035;
-    padding: .2rem .45rem;
-    border-radius: 6px;
+    background: #FF2A6F;
+    color: #FFFFFF;
+    padding: .25rem .55rem;
+    border-radius: 999px;
     vertical-align: middle;
 }
 
@@ -79,7 +80,7 @@ body.admin-body {
     font-size: .68rem;
     font-weight: 700;
     letter-spacing: .06em;
-    color: rgba(201, 195, 221, .5);
+    color: rgba(255, 228, 241, .75);
     padding: 1.1rem 1.25rem .35rem;
 }
 
@@ -87,23 +88,24 @@ body.admin-body {
     display: flex;
     align-items: center;
     gap: .65rem;
-    padding: .6rem 1.25rem;
+    padding: .75rem 1.25rem;
     color: var(--admin-sidebar-text);
     font-weight: 600;
-    font-size: .92rem;
+    font-size: .94rem;
     border-left: 3px solid transparent;
     text-decoration: none;
-    transition: background .15s ease, border-color .15s ease, color .15s ease;
+    transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
 }
 
 .admin-nav-link:hover {
-    background: rgba(255,255,255,.06);
+    background: rgba(255, 255, 255, .12);
     color: #fff;
+    transform: translateX(2px);
 }
 
 .admin-nav-link.active {
-    background: linear-gradient(90deg, rgba(52, 228, 184, .18), rgba(52, 228, 184, .03));
-    border-left-color: var(--admin-mint);
+    background: linear-gradient(90deg, rgba(255, 93, 143, .24), rgba(255, 45, 110, .08));
+    border-left-color: var(--admin-sidebar-active);
     color: #fff;
 }
 
@@ -121,7 +123,7 @@ body.admin-body {
 .admin-nav-soon {
     font-size: .6rem;
     font-weight: 700;
-    background: rgba(255,255,255,.1);
+    background: rgba(255, 255, 255, .1);
     padding: .1rem .4rem;
     border-radius: 999px;
     margin-left: auto;
@@ -136,8 +138,8 @@ body.admin-body {
 }
 
 .admin-topbar {
-    background: var(--admin-surface);
-    border-bottom: 1px solid var(--admin-border);
+    background: linear-gradient(180deg, #FFFFFF, #FFF0F7);
+    border-bottom: 1px solid rgba(255, 45, 110, .12);
     padding: .85rem 1.5rem;
     display: flex;
     align-items: center;
@@ -145,13 +147,17 @@ body.admin-body {
     position: sticky;
     top: 0;
     z-index: 1020;
+    backdrop-filter: blur(8px);
 }
+
 .admin-topbar::after {
     content: '';
     position: absolute;
-    left: 0; right: 0; top: 100%;
+    left: 0;
+    right: 0;
+    top: 100%;
     height: 3px;
-    background: linear-gradient(90deg, var(--admin-accent), var(--admin-pink), var(--admin-mint));
+    background: linear-gradient(90deg, var(--admin-accent), var(--admin-pink), rgba(52, 228, 184, .9));
 }
 
 .admin-topbar-toggle {
@@ -171,7 +177,7 @@ body.admin-body {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.4);
+    background: rgba(0, 0, 0, .4);
     z-index: 1030;
 }
 
@@ -179,16 +185,20 @@ body.admin-body {
     .admin-sidebar {
         transform: translateX(-100%);
     }
+
     .admin-sidebar.is-open {
         transform: translateX(0);
     }
+
     .admin-main {
         margin-left: 0;
     }
+
     .admin-topbar-toggle {
         display: inline-flex;
         align-items: center;
     }
+
     .admin-sidebar-backdrop.is-open {
         display: block;
     }
@@ -198,10 +208,10 @@ body.admin-body {
    CARDS, TABLES, BADGES
    ========================================================================== */
 .admin-card {
-    background: var(--admin-surface);
-    border: 1px solid var(--admin-border);
+    background: #FFFFFF;
+    border: 1px solid rgba(255, 45, 110, .12);
     border-radius: var(--admin-radius-lg);
-    box-shadow: var(--admin-shadow);
+    box-shadow: 0 10px 30px rgba(255, 45, 110, .06);
 }
 
 .admin-card-header {
@@ -265,25 +275,65 @@ body.admin-body {
     font-size: .85rem;
 }
 
-.badge-soft-success { background: rgba(34,197,94,.12); color: #15803D; font-weight: 600; }
-.badge-soft-danger { background: rgba(239,68,68,.12); color: #B91C1C; font-weight: 600; }
-.badge-soft-primary { background: rgba(91,33,182,.1); color: var(--admin-primary); font-weight: 600; }
-.badge-soft-muted { background: rgba(107,114,128,.12); color: var(--admin-text-muted); font-weight: 600; }
-.badge-soft-pink { background: rgba(255,93,143,.14); color: #C21858; font-weight: 600; }
-.badge-soft-mint { background: rgba(52,228,184,.16); color: #0E8F72; font-weight: 600; }
+.badge-soft-success {
+    background: rgba(34, 197, 94, .12);
+    color: #15803D;
+    font-weight: 600;
+}
+
+.badge-soft-danger {
+    background: rgba(239, 68, 68, .12);
+    color: #B91C1C;
+    font-weight: 600;
+}
+
+.badge-soft-primary {
+    background: rgba(91, 33, 182, .1);
+    color: var(--admin-primary);
+    font-weight: 600;
+}
+
+.badge-soft-muted {
+    background: rgba(107, 114, 128, .12);
+    color: var(--admin-text-muted);
+    font-weight: 600;
+}
+
+.badge-soft-pink {
+    background: rgba(255, 93, 143, .14);
+    color: #C21858;
+    font-weight: 600;
+}
+
+.badge-soft-mint {
+    background: rgba(52, 228, 184, .16);
+    color: #0E8F72;
+    font-weight: 600;
+}
 
 /* Kartu shortcut dashboard dengan aksen warna berbeda-beda (bukan ungu monoton semua) */
 .admin-card-accent {
     border-top: 3px solid transparent;
     transition: transform .15s ease, box-shadow .15s ease;
 }
+
 .admin-card-accent:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 26px rgba(91,33,182,.14);
+    box-shadow: 0 10px 26px rgba(91, 33, 182, .14);
 }
-.admin-card-accent.accent-yellow { border-top-color: var(--admin-accent); }
-.admin-card-accent.accent-pink   { border-top-color: var(--admin-pink); }
-.admin-card-accent.accent-mint   { border-top-color: var(--admin-mint); }
+
+.admin-card-accent.accent-yellow {
+    border-top-color: var(--admin-accent);
+}
+
+.admin-card-accent.accent-pink {
+    border-top-color: var(--admin-pink);
+}
+
+.admin-card-accent.accent-mint {
+    border-top-color: var(--admin-mint);
+}
+
 .admin-icon-badge {
     width: 52px;
     height: 52px;
@@ -295,9 +345,18 @@ body.admin-body {
     font-size: 1.35rem;
     flex-shrink: 0;
 }
-.admin-icon-badge.accent-yellow { background: linear-gradient(135deg, #FFC93C, #FF9F1C); }
-.admin-icon-badge.accent-pink   { background: linear-gradient(135deg, #FF5D8F, #C21858); }
-.admin-icon-badge.accent-mint   { background: linear-gradient(135deg, #34E4B8, #0E8F72); }
+
+.admin-icon-badge.accent-yellow {
+    background: linear-gradient(135deg, #FFC93C, #FF9F1C);
+}
+
+.admin-icon-badge.accent-pink {
+    background: linear-gradient(135deg, #FF5D8F, #C21858);
+}
+
+.admin-icon-badge.accent-mint {
+    background: linear-gradient(135deg, #34E4B8, #0E8F72);
+}
 
 .btn-admin-primary {
     background: var(--admin-primary);
@@ -306,6 +365,7 @@ body.admin-body {
     font-weight: 700;
     border-radius: var(--admin-radius-md);
 }
+
 .btn-admin-primary:hover {
     background: var(--admin-primary-dark);
     border-color: var(--admin-primary-dark);
@@ -340,24 +400,29 @@ body.admin-body {
     position: relative;
     overflow: hidden;
 }
+
 .admin-login-page::before {
     content: '';
     position: absolute;
     inset: 0;
     background-image:
-        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+        linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px);
     background-size: 42px 42px;
     mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 40%, transparent 100%);
 }
-.admin-login-card { position: relative; z-index: 1; }
+
+.admin-login-card {
+    position: relative;
+    z-index: 1;
+}
 
 .admin-login-card {
     width: 100%;
     max-width: 400px;
     background: var(--admin-surface);
     border-radius: var(--admin-radius-lg);
-    box-shadow: 0 20px 50px rgba(0,0,0,.35);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
     padding: 2.25rem 2rem;
 }
 
@@ -383,12 +448,14 @@ body.admin-body {
 .admin-timeline {
     position: relative;
 }
+
 .admin-timeline-item {
     display: flex;
     gap: .8rem;
     position: relative;
     padding-bottom: 1.25rem;
 }
+
 .admin-timeline-item:not(:last-child)::before {
     content: '';
     position: absolute;
@@ -398,6 +465,7 @@ body.admin-body {
     width: 2px;
     background: var(--admin-border);
 }
+
 .admin-timeline-dot {
     width: 12px;
     height: 12px;
@@ -415,9 +483,19 @@ body.admin-body {
     border-bottom: 1px solid var(--admin-border);
     font-size: .88rem;
 }
-.admin-info-row:last-child { border-bottom: none; }
-.admin-info-row-label { color: var(--admin-text-muted); }
-.admin-info-row-value { font-weight: 600; text-align: right; }
+
+.admin-info-row:last-child {
+    border-bottom: none;
+}
+
+.admin-info-row-label {
+    color: var(--admin-text-muted);
+}
+
+.admin-info-row-value {
+    font-weight: 600;
+    text-align: right;
+}
 
 .admin-status-pill {
     font-weight: 700;

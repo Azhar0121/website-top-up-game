@@ -60,9 +60,8 @@
         </a>
 
         <div class="admin-nav-section">Customers &amp; Affiliates</div>
-        <a href="#" class="admin-nav-link disabled" tabindex="-1">
+        <a href="{{ route('admin.users.index') }}" class="admin-nav-link {{ $isActive('admin.users.*') }}">
             <i class="bi bi-people-fill"></i> Users &amp; Leveling
-            <span class="admin-nav-soon">Segera</span>
         </a>
 
         <div class="admin-nav-section">Reports</div>

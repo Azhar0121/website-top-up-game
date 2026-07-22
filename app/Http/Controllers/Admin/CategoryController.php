@@ -8,14 +8,6 @@ use App\Models\Game;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-/**
- * CRUD Category (PRD 3: pembagian kategori produk - Diamond, Battle Pass, Gift Card, Skin, dsb).
- *
- * Sebelumnya form tambah/edit ditaruh dalam modal Bootstrap di halaman index. Sekarang
- * dipindah jadi halaman create/edit terpisah (resources/views/admin/categories/form.blade.php),
- * konsisten dengan pola Game & Product, supaya lebih gampang dipastikan berfungsi (modal
- * sebelumnya sempat tidak ke-trigger dengan benar karena masalah data-bs-toggle/JS).
- */
 class CategoryController extends Controller
 {
     /**
@@ -90,8 +82,6 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        // Cek manual dulu sebelum delete, supaya admin dapat pesan yang jelas kenapa gagal -
-        // daripada mengandalkan foreign key constraint error dari MySQL yang membingungkan.
         if ($category->products()->exists()) {
             return back()->with('error', "Kategori \"{$category->name}\" tidak bisa dihapus karena masih punya produk di dalamnya. Pindahkan atau hapus dulu produknya.");
         }
