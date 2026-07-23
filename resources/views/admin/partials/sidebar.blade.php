@@ -34,15 +34,13 @@
         <a href="{{ route('admin.products.index') }}" class="admin-nav-link {{ $isActive('admin.products.*') }}">
             <i class="bi bi-box-seam-fill"></i> Products &amp; SKUs
         </a>
-        <a href="#" class="admin-nav-link disabled" tabindex="-1">
-            <i class="bi bi-lightning-fill"></i> Flash Sale &amp; Promo
-            <span class="admin-nav-soon">Segera</span>
+        <a href="{{ route('admin.vouchers.index') }}" class="admin-nav-link {{ $isActive('admin.vouchers.*') }}">
+            <i class="bi bi-lightning-fill"></i> Vouchers &amp; Promo
         </a>
 
         <div class="admin-nav-section">Providers &amp; API</div>
-        <a href="#" class="admin-nav-link disabled" tabindex="-1">
+        <a href="{{ route('admin.providers.index') }}" class="admin-nav-link {{ $isActive('admin.providers.*') }}">
             <i class="bi bi-hdd-network-fill"></i> Provider List &amp; Priority
-            <span class="admin-nav-soon">Segera</span>
         </a>
         <a href="#" class="admin-nav-link disabled" tabindex="-1">
             <i class="bi bi-journal-code"></i> API &amp; Webhook Logs

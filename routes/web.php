@@ -63,7 +63,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/orders/{order}/force-success', [AdminOrderController::class, 'forceSuccess'])->name('orders.force-success');
         Route::post('/orders/{order}/resend-callback', [AdminOrderController::class, 'resendCallback'])->name('orders.resend-callback');
 
-        // CRUD Game (PRD 6: menu "Games & Products" -> Categories, dst)
+        // CRUD Game
         Route::resource('games', AdminGameController::class)->except(['show']);
 
         // CRUD Category - tanpa create/edit terpisah karena pakai modal di halaman index
@@ -77,7 +77,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // CRUD Product
         Route::resource('products', ProductController::class)->except(['show']);
 
-        // Kelola User (PRD 4.6 & sitemap "Users & Leveling" / "Admin Users & Roles")
+        // Providers & API
+        Route::get('/providers', [\App\Http\Controllers\Admin\ProviderController::class, 'index'])->name('providers.index');
+        Route::get('/providers/create', [\App\Http\Controllers\Admin\ProviderController::class, 'create'])->name('providers.create');
+        Route::post('/providers', [\App\Http\Controllers\Admin\ProviderController::class, 'store'])->name('providers.store');
+        Route::get('/providers/{provider}/edit', [\App\Http\Controllers\Admin\ProviderController::class, 'edit'])->name('providers.edit');
+        Route::put('/providers/{provider}', [\App\Http\Controllers\Admin\ProviderController::class, 'update'])->name('providers.update');
+        Route::post('/providers/{provider}/toggle', [\App\Http\Controllers\Admin\ProviderController::class, 'toggle'])->name('providers.toggle');
+
+        // Voucher & Promo Code
+        Route::resource('vouchers', \App\Http\Controllers\Admin\VoucherController::class)->except(['show']);
+
+        // Kelola User
         Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
         Route::post('/users/bulk-update-role', [\App\Http\Controllers\Admin\UserController::class, 'bulkUpdateRole'])->name('users.bulk-update-role');
         Route::get('/users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
