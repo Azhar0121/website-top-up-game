@@ -35,15 +35,22 @@
                 @csrf
                 @method('PUT')
 
-                <label for="role" class="form-label fw-semibold">Role</label>
-                <select name="role" id="role" class="form-select @error('role') is-invalid @enderror" required>
+                <label class="form-label fw-semibold">Role (boleh pilih lebih dari satu)</label>
+                <div class="row g-2 mb-2">
                     @foreach ($roles as $r)
-                        <option value="{{ $r }}" {{ old('role', $currentRole) === $r ? 'selected' : '' }}>{{ ucfirst($r) }}</option>
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input type="checkbox" name="roles[]" value="{{ $r }}" id="role_{{ $r }}"
+                                       class="form-check-input" {{ in_array($r, old('roles', $currentRoles)) ? 'checked' : '' }}>
+                                <label for="role_{{ $r }}" class="form-check-label">{{ ucfirst($r) }}</label>
+                            </div>
+                        </div>
                     @endforeach
-                </select>
-                @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                @error('roles') <div class="text-danger small mb-2">{{ $message }}</div> @enderror
+
                 <div class="form-text">
-                    "Customer" cuma bisa belanja & lihat riwayat transaksi sendiri. Role lain (owner/admin/finance/cs/marketing/developer) dapat akses dashboard admin sesuai PRD 4.6.
+                    "Customer" cuma bisa belanja & lihat riwayat transaksi sendiri. Role lain (owner/admin/finance/cs/marketing/developer) dapat akses dashboard admin sesuai PRD 4.6 - satu user boleh punya kombinasi lebih dari satu role staff (misal Finance + Marketing).
                 </div>
 
                 <button type="submit" class="btn btn-admin-primary px-4 mt-3">

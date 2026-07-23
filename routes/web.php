@@ -79,6 +79,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Kelola User (PRD 4.6 & sitemap "Users & Leveling" / "Admin Users & Roles")
         Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+        Route::post('/users/bulk-update-role', [\App\Http\Controllers\Admin\UserController::class, 'bulkUpdateRole'])->name('users.bulk-update-role');
         Route::get('/users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
     });

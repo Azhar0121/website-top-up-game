@@ -9,18 +9,6 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-/**
- * Login untuk SEMUA jenis akun (customer maupun staff), satu form yang sama.
- *
- * Sebelumnya halaman "/login" cuma redirect ke "/admin/login" (khusus staff).
- * Sekarang jadi halaman login sungguhan yang dipakai customer untuk masuk ke
- * akunnya (lihat riwayat transaksi & repeat order), dan KALAU kebetulan staff
- * login lewat sini juga tetap bisa - setelah berhasil, tujuan redirect-nya
- * dibedakan berdasarkan role (pakai Spatie Permission yang sudah ada).
- *
- * /admin/login (Admin\AuthController) TIDAK diubah/dihapus sama sekali supaya
- * tidak ada risiko merusak alur admin yang sudah jalan.
- */
 class LoginController extends Controller
 {
     protected array $staffRoles = ['owner', 'admin', 'finance', 'cs', 'marketing', 'developer'];

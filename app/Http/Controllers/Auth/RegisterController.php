@@ -9,11 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
-/**
- * Registrasi akun customer (PRD 3: "User Account - Login via Google/Email/WA").
- * Untuk sekarang cuma via Email dulu sesuai arahan - Google/WA bisa ditambah belakangan
- * tanpa mengubah struktur ini (tabel users & role sudah siap).
- */
 class RegisterController extends Controller
 {
     public function show()
@@ -41,8 +36,6 @@ class RegisterController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        // Role 'customer' dibuat lewat RoleSeeder - firstOrCreate supaya tetap aman
-        // walau seeder itu belum sempat dijalankan ulang di environment ini.
         $user->assignRole(\Spatie\Permission\Models\Role::firstOrCreate(['name' => 'customer'])->name);
 
         Auth::login($user);
