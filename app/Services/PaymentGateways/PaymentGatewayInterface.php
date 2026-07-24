@@ -15,4 +15,6 @@ interface PaymentGatewayInterface
     public function mapStatus(array $payload): string;
 
     public function getAvailablePaymentMethods(int $amount): array;
+
+    public function checkStatus(Order $order): ?array;
 }

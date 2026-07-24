@@ -5,13 +5,6 @@ namespace App\Console\Commands;
 use App\Services\PriceSyncService;
 use Illuminate\Console\Command;
 
-/**
- * Jalankan manual: php artisan products:sync-prices
- *
- * Nanti kalau mau otomatis terjadwal (misal tiap jam), tambahkan ke
- * routes/console.php:
- *   Schedule::command('products:sync-prices')->hourly();
- */
 class SyncProductPrices extends Command
 {
     protected $signature = 'products:sync-prices';

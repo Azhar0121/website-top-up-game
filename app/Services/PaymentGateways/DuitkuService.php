@@ -162,4 +162,11 @@ class DuitkuService implements PaymentGatewayInterface
             return [];
         }
     }
+
+    public function checkStatus(Order $order): ?array
+    {
+        // Belum diimplementasi - project ini sengaja cuma pakai Midtrans (lihat catatan
+        // di PaymentGatewayServiceFactory), Duitku dibuat tapi tidak aktif dipakai.
+        return null;
+    }
 }

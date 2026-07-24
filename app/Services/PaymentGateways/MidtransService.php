@@ -128,4 +128,39 @@ class MidtransService implements PaymentGatewayInterface
     {
         return [];
     }
+
+    /**
+     * Tanya langsung ke Midtrans lewat Transaction Status API - dipakai admin buat
+     * "Cek Status ke Payment Gateway" kalau webhook tidak pernah sampai (khas kasus
+     * local dev tanpa ngrok/notification URL belum di-set di dashboard Midtrans).
+     */
+    public function checkStatus(Order $order): ?array
+    {
+        try {
+            $result = \Midtrans\Transaction::status($order->invoice_number);
+
+            // SDK Midtrans balikin stdClass, diseragamkan jadi array asosiatif biasa
+            // supaya bisa langsung dipakai ulang di mapStatus()/extractReference()
+            // (yang memang didesain buat baca format payload webhook).
+            $payload = json_decode(json_encode($result), true);
+
+            ApiLog::record([
+                'order_id' => $order->id,
+                'type'     => 'response',
+                'payload'  => ['action' => 'manual_status_check'],
+                'response' => $payload,
+            ]);
+
+            return $payload;
+        } catch (\Throwable $e) {
+            ApiLog::record([
+                'order_id' => $order->id,
+                'type'     => 'error',
+                'payload'  => ['action' => 'manual_status_check'],
+                'response' => ['error' => $e->getMessage()],
+            ]);
+
+            return null;
+        }
+    }
 }

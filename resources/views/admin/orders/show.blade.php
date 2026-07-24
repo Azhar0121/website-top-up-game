@@ -69,6 +69,14 @@
             <div class="admin-card">
                 <div class="admin-card-header"><div class="fw-bold">Tindakan Manual</div></div>
                 <div class="admin-card-body d-grid gap-2">
+                    @if ($order->status === 'pending_payment' && $payment)
+                        <form method="POST" action="{{ route('admin.orders.check-payment-status', $order) }}" onsubmit="return confirm('Cek status pembayaran ini langsung ke payment gateway?')">
+                            @csrf
+                            <button class="btn btn-outline-primary w-100"><i class="bi bi-arrow-clockwise"></i> Cek Status ke Payment Gateway</button>
+                        </form>
+                        <p class="small text-muted mb-0">Dipakai kalau order tetap "Menunggu Pembayaran" walau customer sudah bayar - biasanya karena webhook belum sampai (cek konfigurasi ngrok/notification URL).</p>
+                    @endif
+
                     @if ($order->status === 'failed')
                         <form method="POST" action="{{ route('admin.orders.retry', $order) }}" onsubmit="return confirm('Jalankan ulang request ke provider?')">
                             @csrf
@@ -95,7 +103,7 @@
                         </form>
                     @endif
 
-                    @if (! in_array($order->status, ['failed', 'paid', 'processing', 'success'], true))
+                    @if (! in_array($order->status, ['failed', 'paid', 'processing', 'success'], true) && ! ($order->status === 'pending_payment' && $payment))
                         <p class="small text-muted mb-0">Tidak ada tindakan manual untuk status ini.</p>
                     @endif
                 </div>

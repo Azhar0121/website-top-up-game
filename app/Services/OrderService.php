@@ -132,6 +132,7 @@ class OrderService
 
         if (! $wasAlreadySuccess) {
             $order->update(['completed_at' => now()]);
+            $this->sendSuccessNotification($order);
         }
     }
 

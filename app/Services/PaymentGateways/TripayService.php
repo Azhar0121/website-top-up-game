@@ -113,4 +113,11 @@ class TripayService implements PaymentGatewayInterface
     {
         return [];
     }
+
+    public function checkStatus(Order $order): ?array
+    {
+        // Belum diimplementasi - project ini sengaja cuma pakai Midtrans (lihat catatan
+        // di PaymentGatewayServiceFactory), Tripay dibuat tapi tidak aktif dipakai.
+        return null;
+    }
 }

@@ -42,9 +42,8 @@
         <a href="{{ route('admin.providers.index') }}" class="admin-nav-link {{ $isActive('admin.providers.*') }}">
             <i class="bi bi-hdd-network-fill"></i> Provider List &amp; Priority
         </a>
-        <a href="#" class="admin-nav-link disabled" tabindex="-1">
+        <a href="{{ route('admin.api-logs.index') }}" class="admin-nav-link {{ $isActive('admin.api-logs.*') }}">
             <i class="bi bi-journal-code"></i> API &amp; Webhook Logs
-            <span class="admin-nav-soon">Segera</span>
         </a>
 
         <div class="admin-nav-section">Payments &amp; Finance</div>
@@ -59,7 +58,7 @@
 
         <div class="admin-nav-section">Customers &amp; Affiliates</div>
         <a href="{{ route('admin.users.index') }}" class="admin-nav-link {{ $isActive('admin.users.*') }}">
-            <i class="bi bi-people-fill"></i> Users &amp; Leveling
+            <i class="bi bi-people-fill"></i> Users
         </a>
 
         <div class="admin-nav-section">Reports</div>

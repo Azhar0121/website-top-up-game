@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\OrderService;
+use App\Services\PaymentGateways\PaymentGatewayServiceFactory;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -101,6 +102,61 @@ class OrderController extends Controller
 
         return redirect()->route('admin.orders.show', $order)
             ->with('status', 'Notifikasi sukses dikirim ulang ke pelanggan.');
+    }
+
+    /**
+     * POST /admin/orders/{order}/check-payment-status
+     * Fallback manual buat kasus webhook tidak pernah sampai (khas local dev: ngrok
+     * mati/URL notification belum di-set di dashboard gateway). Tanya LANGSUNG ke
+     * gateway pakai reference number pembayaran, lalu proses hasilnya persis seperti
+     * kalau webhook itu yang datang - supaya order tidak nyangkut selamanya di
+     * pending_payment padahal customer-nya sudah benar-benar bayar.
+     */
+    public function checkPaymentStatus(Order $order, OrderService $orderService)
+    {
+        $payment = $order->payment()->latest()->first();
+
+        if (! $payment) {
+            return back()->with('error', 'Order ini belum punya record pembayaran sama sekali.');
+        }
+
+        $service = PaymentGatewayServiceFactory::make($payment->paymentGateway);
+        $payload = $service->checkStatus($order);
+
+        if ($payload === null) {
+            return back()->with('error', 'Gagal menghubungi payment gateway, atau gateway ini belum mendukung cek status manual. Cek API & Webhook Logs untuk detail errornya.');
+        }
+
+        $mappedStatus = $service->mapStatus($payload);
+        $alreadyPaid = $payment->status === 'paid';
+
+        $payment->update([
+            'status'       => $mappedStatus,
+            'raw_callback' => json_encode($payload),
+            'paid_at'      => $mappedStatus === 'paid' ? ($payment->paid_at ?? now()) : $payment->paid_at,
+        ]);
+
+        if ($mappedStatus === 'paid' && ! $alreadyPaid && $order->status === Order::STATUS_PENDING_PAYMENT) {
+            if ($orderService->processAfterPayment($order)) {
+                \App\Jobs\ProcessTopUpOrder::dispatch($order->fresh());
+            }
+
+            return redirect()->route('admin.orders.show', $order)
+                ->with('status', 'Status ditemukan: sudah dibayar. Order dilanjutkan ke provider.');
+        }
+
+        if (in_array($mappedStatus, ['failed', 'expired']) && $order->status === Order::STATUS_PENDING_PAYMENT) {
+            $order->transitionTo(
+                $mappedStatus === 'expired' ? Order::STATUS_EXPIRED : Order::STATUS_CANCELLED,
+                "Pembayaran {$mappedStatus} menurut pengecekan manual ke {$payment->paymentGateway->name}"
+            );
+
+            return redirect()->route('admin.orders.show', $order)
+                ->with('status', "Status ditemukan: {$mappedStatus}. Order diupdate.");
+        }
+
+        return redirect()->route('admin.orders.show', $order)
+            ->with('status', "Gateway melaporkan status: {$mappedStatus}. Tidak ada perubahan pada order (belum ada progres baru).");
     }
 
     private function actorName(Request $request): string

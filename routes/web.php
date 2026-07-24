@@ -62,6 +62,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/orders/{order}/retry', [AdminOrderController::class, 'retry'])->name('orders.retry');
         Route::post('/orders/{order}/force-success', [AdminOrderController::class, 'forceSuccess'])->name('orders.force-success');
         Route::post('/orders/{order}/resend-callback', [AdminOrderController::class, 'resendCallback'])->name('orders.resend-callback');
+        Route::post('/orders/{order}/check-payment-status', [AdminOrderController::class, 'checkPaymentStatus'])->name('orders.check-payment-status');
 
         // CRUD Game
         Route::resource('games', AdminGameController::class)->except(['show']);
@@ -84,6 +85,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/providers/{provider}/edit', [\App\Http\Controllers\Admin\ProviderController::class, 'edit'])->name('providers.edit');
         Route::put('/providers/{provider}', [\App\Http\Controllers\Admin\ProviderController::class, 'update'])->name('providers.update');
         Route::post('/providers/{provider}/toggle', [\App\Http\Controllers\Admin\ProviderController::class, 'toggle'])->name('providers.toggle');
+
+        // API & Webhook Logs
+        Route::get('/api-logs', [\App\Http\Controllers\Admin\ApiLogController::class, 'index'])->name('api-logs.index');
+        Route::get('/api-logs/{apiLog}', [\App\Http\Controllers\Admin\ApiLogController::class, 'show'])->name('api-logs.show');
 
         // Voucher & Promo Code
         Route::resource('vouchers', \App\Http\Controllers\Admin\VoucherController::class)->except(['show']);
