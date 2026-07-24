@@ -106,11 +106,6 @@ class OrderController extends Controller
 
     /**
      * POST /admin/orders/{order}/check-payment-status
-     * Fallback manual buat kasus webhook tidak pernah sampai (khas local dev: ngrok
-     * mati/URL notification belum di-set di dashboard gateway). Tanya LANGSUNG ke
-     * gateway pakai reference number pembayaran, lalu proses hasilnya persis seperti
-     * kalau webhook itu yang datang - supaya order tidak nyangkut selamanya di
-     * pending_payment padahal customer-nya sudah benar-benar bayar.
      */
     public function checkPaymentStatus(Order $order, OrderService $orderService)
     {

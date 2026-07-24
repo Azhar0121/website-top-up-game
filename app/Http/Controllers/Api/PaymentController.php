@@ -85,10 +85,6 @@ class PaymentController extends Controller
     {
         $payload = $request->all();
 
-        // Simpan dulu log webhook mentahnya SEBELUM tahu ini punya order mana -
-        // supaya webhook yang aneh/tidak valid pun tetap tercatat buat investigasi.
-        // $webhookLog di-update belakangan begitu order-nya ketemu (lihat bawah),
-        // supaya di halaman admin baris ini bisa dihubungkan ke invoice yang tepat.
         $webhookLog = ApiLog::record([
             'type'    => 'webhook',
             'payload' => $payload,
