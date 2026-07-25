@@ -5,9 +5,11 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\GameController as AdminGameController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -53,9 +55,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
@@ -98,5 +98,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/users/bulk-update-role', [\App\Http\Controllers\Admin\UserController::class, 'bulkUpdateRole'])->name('users.bulk-update-role');
         Route::get('/users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+
+        // Reports
+        Route::get('/reports/sales-revenue', [AdminReportController::class, 'salesRevenue'])->name('reports.sales-revenue');
+        Route::get('/reports/sales-revenue/export', [AdminReportController::class, 'exportSalesRevenue'])->name('reports.sales-revenue.export');
+        Route::get('/reports/profit-margin', [AdminReportController::class, 'profitMargin'])->name('reports.profit-margin');
+        Route::get('/reports/profit-margin/export', [AdminReportController::class, 'exportProfitMargin'])->name('reports.profit-margin.export');
+        Route::get('/reports/provider-performance', [AdminReportController::class, 'providerPerformance'])->name('reports.provider-performance');
+        Route::get('/reports/provider-performance/export', [AdminReportController::class, 'exportProviderPerformance'])->name('reports.provider-performance.export');
+        Route::get('/reports/product-performance', [AdminReportController::class, 'productPerformance'])->name('reports.product-performance');
+        Route::get('/reports/product-performance/export', [AdminReportController::class, 'exportProductPerformance'])->name('reports.product-performance.export');
     });
 });

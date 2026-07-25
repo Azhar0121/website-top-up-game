@@ -62,9 +62,17 @@
         </a>
 
         <div class="admin-nav-section">Reports</div>
-        <a href="#" class="admin-nav-link disabled" tabindex="-1">
+        <a href="{{ route('admin.reports.sales-revenue') }}" class="admin-nav-link {{ $isActive('admin.reports.sales-revenue*') }}">
             <i class="bi bi-bar-chart-fill"></i> Sales &amp; Revenue
-            <span class="admin-nav-soon">Segera</span>
+        </a>
+        <a href="{{ route('admin.reports.profit-margin') }}" class="admin-nav-link {{ $isActive('admin.reports.profit-margin*') }}">
+            <i class="bi bi-graph-up-arrow"></i> Profit / Margin
+        </a>
+        <a href="{{ route('admin.reports.provider-performance') }}" class="admin-nav-link {{ $isActive('admin.reports.provider-performance*') }}">
+            <i class="bi bi-hdd-network"></i> Provider Performance
+        </a>
+        <a href="{{ route('admin.reports.product-performance') }}" class="admin-nav-link {{ $isActive('admin.reports.product-performance*') }}">
+            <i class="bi bi-controller"></i> Product &amp; Game Performance
         </a>
 
         <div class="admin-nav-section">Content &amp; Marketing</div>

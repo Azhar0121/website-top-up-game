@@ -25,8 +25,30 @@
         backdrop.addEventListener('click', closeSidebar);
     }
 
-    // Form delete dikasih atribut data-confirm-delete="Nama Item" di Blade,
-    // supaya satu script ini bisa dipakai ulang untuk delete game/kategori/produk/dst.
+    if (sidebar) {
+        const SCROLL_KEY = 'adminSidebarScrollTop';
+        const savedScroll = sessionStorage.getItem(SCROLL_KEY);
+
+        if (savedScroll !== null) {
+            sidebar.scrollTop = parseInt(savedScroll, 10);
+        } else {
+            const activeLink = sidebar.querySelector('.admin-nav-link.active');
+            if (activeLink) {
+                activeLink.scrollIntoView({ block: 'center' });
+            }
+        }
+
+        sidebar.addEventListener('scroll', function () {
+            sessionStorage.setItem(SCROLL_KEY, sidebar.scrollTop);
+        });
+
+        sidebar.querySelectorAll('a.admin-nav-link').forEach(function (link) {
+            link.addEventListener('click', function () {
+                sessionStorage.setItem(SCROLL_KEY, sidebar.scrollTop);
+            });
+        });
+    }
+
     document.querySelectorAll('form[data-confirm-delete]').forEach(function (form) {
         form.addEventListener('submit', function (event) {
             const label = form.getAttribute('data-confirm-delete');
