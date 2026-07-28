@@ -28,10 +28,10 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Named rate limiter (PRD 5. Security & Proteksi: "Rate Limiting - Mencegah
+     * Named rate limiter (Security & Proteksi: "Rate Limiting - Mencegah
      * spam order / DDOS application layer"). Login/register sudah punya
-     * throttle manual sendiri di controller-nya masing-masing (lihat
-     * LoginController & Admin\AuthController), jadi di sini fokus ke endpoint
+     * throttle manual sendiri di LoginController (satu-satunya pintu login,
+     * dipakai bareng customer & staff), jadi di sini fokus ke endpoint
      * lain yang sebelumnya belum dibatasi sama sekali.
      */
     protected function registerRateLimiters(): void

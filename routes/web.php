@@ -3,7 +3,6 @@
 use App\Http\Controllers\PageController;    
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\GameController as AdminGameController;
@@ -36,7 +35,7 @@ Route::get('/register', [RegisterController::class, 'show'])->name('register');
 Route::post('/register', [RegisterController::class, 'store'])->middleware('throttle:10,1')->name('register.submit');
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
-// ==================== 2FA OTP (khusus staff, dipicu dari /login & /admin/login) ====================
+// ==================== 2FA OTP (khusus staff, dipicu dari /login) ====================
 Route::get('/two-factor', [TwoFactorController::class, 'show'])->name('two-factor.show');
 Route::post('/two-factor', [TwoFactorController::class, 'verify'])->middleware('throttle:10,1')->name('two-factor.verify');
 Route::post('/two-factor/resend', [TwoFactorController::class, 'resend'])->name('two-factor.resend');
@@ -50,16 +49,8 @@ Route::middleware('auth')->group(function () {
 
 Route::prefix('admin')->name('admin.')->middleware('restrict_admin_ip')->group(function () {
 
-    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])
-        ->name('login');
-
-    Route::post('/login', [AdminAuthController::class, 'login'])
-        ->middleware('throttle:10,1')
-        ->name('login.submit');
     // ==================== AREA ADMIN (wajib login + role staff) ====================
     Route::middleware(['auth', 'role:owner|admin|finance|cs|marketing|developer'])->group(function () {
-
-        Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 

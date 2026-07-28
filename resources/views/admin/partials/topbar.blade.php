@@ -21,7 +21,7 @@
             <li><h6 class="dropdown-header">{{ auth()->user()->email ?? '' }}</h6></li>
             <li><hr class="dropdown-divider"></li>
             <li>
-                <form action="{{ route('admin.logout') }}" method="POST">
+                <form action="{{ route('logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="dropdown-item text-danger">
                         <i class="bi bi-box-arrow-right me-1"></i> Logout
