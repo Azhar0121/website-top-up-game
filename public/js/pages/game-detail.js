@@ -19,6 +19,25 @@
     const summaryProductName = document.getElementById('summary-product-name');
     const summaryProductPrice = document.getElementById('summary-product-price');
 
+    /**
+     * Ambil token reCAPTCHA v3 buat action tertentu
+     */
+    function getRecaptchaToken(action) {
+        const siteKey = window.APP_CONFIG?.recaptchaSiteKey;
+l
+        if (!siteKey || typeof grecaptcha === 'undefined') {
+            return Promise.resolve(null);
+        }
+
+        return new Promise(function (resolve) {
+            grecaptcha.ready(function () {
+                grecaptcha.execute(siteKey, { action: action })
+                    .then(resolve)
+                    .catch(function () { resolve(null); });
+            });
+        });
+    }
+
     let selectedProduct = null;
     let allCategories = [];
     let isSubmitting = false;
@@ -197,6 +216,8 @@
         submitBtn.disabled = true;
         submitBtn.textContent = 'Memproses...';
 
+        const recaptchaToken = await getRecaptchaToken('checkout');
+
         const payload = {
             product_id: selectedProduct.id,
             target_game_id: targetGameId,
@@ -204,6 +225,7 @@
             customer_email: document.getElementById('customer_email').value.trim() || null,
             customer_whatsapp: document.getElementById('customer_whatsapp').value.trim() || null,
             voucher_code: document.getElementById('voucher_code').value.trim() || null,
+            recaptcha_token: recaptchaToken,
         };
 
         try {

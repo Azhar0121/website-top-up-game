@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/admin-custom.css') }}">
+    @if (config('services.recaptcha.site_key'))
+        <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+    @endif
 </head>
 <body class="admin-body">
 
@@ -36,8 +39,9 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.login.submit') }}" method="POST" novalidate>
+            <form action="{{ route('admin.login.submit') }}" method="POST" novalidate id="admin-login-form">
                 @csrf
+                <input type="hidden" name="recaptcha_token" id="recaptcha_token">
 
                 <div class="mb-3">
                     <label for="email" class="form-label fw-semibold small">Email</label>
@@ -58,7 +62,7 @@
                     <label for="remember" class="form-check-label small">Ingat saya di perangkat ini</label>
                 </div>
 
-                <button type="submit" class="btn btn-admin-primary w-100 py-2">
+                <button type="submit" class="btn btn-admin-primary w-100 py-2" id="admin-login-submit-btn">
                     <i class="bi bi-box-arrow-in-right me-1"></i> Masuk Dashboard
                 </button>
             </form>
@@ -68,6 +72,34 @@
             </p>
         </div>
     </div>
+
+    <script>
+        (function () {
+            const form = document.getElementById('admin-login-form');
+            const submitBtn = document.getElementById('admin-login-submit-btn');
+            const tokenInput = document.getElementById('recaptcha_token');
+            const siteKey = @json(config('services.recaptcha.site_key'));
+
+            form.addEventListener('submit', function (event) {
+                if (!siteKey || typeof grecaptcha === 'undefined') {
+                    return;
+                }
+
+                event.preventDefault();
+                submitBtn.disabled = true;
+
+                grecaptcha.ready(function () {
+                    grecaptcha.execute(siteKey, { action: 'admin_login' }).then(function (token) {
+                        tokenInput.value = token;
+                        form.submit();
+                    }).catch(function () {
+                        submitBtn.disabled = false;
+                        form.submit();
+                    });
+                });
+            });
+        })();
+    </script>
 
 </body>
 </html>

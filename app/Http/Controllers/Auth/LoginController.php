@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\RecaptchaService;
+use App\Services\TwoFactorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -22,12 +24,18 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    public function login(Request $request)
+    public function login(Request $request, RecaptchaService $recaptcha, TwoFactorService $twoFactor)
     {
         $credentials = $request->validate([
             'email'    => 'required|email',
             'password' => 'required|string',
         ]);
+
+        if (! $recaptcha->verify($request->input('recaptcha_token'), 'login')) {
+            throw ValidationException::withMessages([
+                'email' => 'Verifikasi keamanan (reCAPTCHA) gagal. Silakan muat ulang halaman dan coba lagi.',
+            ]);
+        }
 
         $throttleKey = Str::lower($credentials['email']).'|'.$request->ip();
 
@@ -48,9 +56,26 @@ class LoginController extends Controller
         }
 
         RateLimiter::clear($throttleKey);
+        $user = Auth::user();
+        $remember = $request->boolean('remember');
+        $intended = $this->redirectPathFor($user);
+
+        // Staff (owner/admin/finance/cs/marketing/developer) wajib verifikasi OTP dulu.
+        // Password sudah benar di titik ini, tapi kita belum finalisasi sesi loginnya -
+        // logout dulu supaya user "belum benar-benar masuk" sampai kode OTP diverifikasi.
+        if ($user->hasAnyRole($this->staffRoles)) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            $twoFactor->challenge($user, $remember, $intended);
+
+            return redirect()->route('two-factor.show');
+        }
+
         $request->session()->regenerate();
 
-        return redirect()->intended($this->redirectPathFor(Auth::user()));
+        return redirect()->intended($intended);
     }
 
     public function logout(Request $request)

@@ -37,8 +37,9 @@
                 <hr class="flex-grow-1 my-0"><span class="small" style="color: var(--color-text-muted);">atau</span><hr class="flex-grow-1 my-0">
             </div>
 
-            <form action="{{ route('login.submit') }}" method="POST" novalidate>
+            <form action="{{ route('login.submit') }}" method="POST" novalidate id="login-form">
                 @csrf
+                <input type="hidden" name="recaptcha_token" id="recaptcha_token">
 
                 <div class="mb-3">
                     <label for="email" class="form-label fw-semibold" style="font-size:.9rem;">Email</label>
@@ -59,7 +60,7 @@
                     <label for="remember" class="form-check-label small">Ingat saya di perangkat ini</label>
                 </div>
 
-                <button type="submit" class="btn app-btn-cta w-100">Masuk</button>
+                <button type="submit" class="btn app-btn-cta w-100" id="login-submit-btn">Masuk</button>
             </form>
 
             <p class="text-center small mt-4 mb-0" style="color: var(--color-text-muted);">
@@ -69,3 +70,34 @@
     </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    (function () {
+        const form = document.getElementById('login-form');
+        const submitBtn = document.getElementById('login-submit-btn');
+        const tokenInput = document.getElementById('recaptcha_token');
+        const siteKey = window.APP_CONFIG?.recaptchaSiteKey;
+
+        form.addEventListener('submit', function (event) {
+            // Kalau reCAPTCHA belum dikonfigurasi (siteKey kosong), langsung submit seperti biasa.
+            if (!siteKey || typeof grecaptcha === 'undefined') {
+                return;
+            }
+
+            event.preventDefault();
+            submitBtn.disabled = true;
+
+            grecaptcha.ready(function () {
+                grecaptcha.execute(siteKey, { action: 'login' }).then(function (token) {
+                    tokenInput.value = token;
+                    form.submit();
+                }).catch(function () {
+                    submitBtn.disabled = false;
+                    form.submit(); // fallback: tetap submit biar user tidak stuck kalau reCAPTCHA error
+                });
+            });
+        });
+    })();
+</script>
+@endpush

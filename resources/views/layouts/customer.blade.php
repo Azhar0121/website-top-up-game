@@ -31,8 +31,12 @@
         window.APP_CONFIG = {
             apiBase: '{{ url('/api/v1') }}',
             user: @auth {{ Illuminate\Support\Js::from(['name' => auth()->user()->name, 'email' => auth()->user()->email]) }} @else null @endauth,
+            recaptchaSiteKey: @json(config('services.recaptcha.site_key')),
         };
     </script>
+    @if (config('services.recaptcha.site_key'))
+        <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+    @endif
     @stack('scripts')
 </body>
 </html>

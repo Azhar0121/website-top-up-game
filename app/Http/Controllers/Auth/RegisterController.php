@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\RecaptchaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 
 class RegisterController extends Controller
 {
@@ -20,8 +22,14 @@ class RegisterController extends Controller
         return view('auth.register');
     }
 
-    public function store(Request $request)
+    public function store(Request $request, RecaptchaService $recaptcha)
     {
+        if (! $recaptcha->verify($request->input('recaptcha_token'), 'register')) {
+            throw ValidationException::withMessages([
+                'email' => 'Verifikasi keamanan (reCAPTCHA) gagal. Silakan muat ulang halaman dan coba lagi.',
+            ]);
+        }
+
         $validated = $request->validate([
             'name'     => 'required|string|max:100',
             'email'    => 'required|email|max:150|unique:users,email',

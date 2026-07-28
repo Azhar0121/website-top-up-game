@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Customer\AccountController;
 
 
@@ -35,6 +36,11 @@ Route::get('/register', [RegisterController::class, 'show'])->name('register');
 Route::post('/register', [RegisterController::class, 'store'])->middleware('throttle:10,1')->name('register.submit');
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
+// ==================== 2FA OTP (khusus staff, dipicu dari /login & /admin/login) ====================
+Route::get('/two-factor', [TwoFactorController::class, 'show'])->name('two-factor.show');
+Route::post('/two-factor', [TwoFactorController::class, 'verify'])->middleware('throttle:10,1')->name('two-factor.verify');
+Route::post('/two-factor/resend', [TwoFactorController::class, 'resend'])->name('two-factor.resend');
+
 Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
 
@@ -42,7 +48,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/akun', [AccountController::class, 'index'])->name('account.index');
 });
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware('restrict_admin_ip')->group(function () {
 
     Route::get('/login', [AdminAuthController::class, 'showLoginForm'])
         ->name('login');

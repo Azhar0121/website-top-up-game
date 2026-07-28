@@ -20,15 +20,15 @@ Route::prefix('v1')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
     // Checkout & cek status order
-    Route::post('/checkout', [OrderController::class, 'store']);
-    Route::get('/orders/{invoice}', [OrderController::class, 'show']);
+    Route::post('/checkout', [OrderController::class, 'store'])->middleware('throttle:checkout');
+    Route::get('/orders/{invoice}', [OrderController::class, 'show'])->middleware('throttle:order-status');
 
     Route::get('/payment/methods', [PaymentController::class, 'paymentMethods']);
 
     // Transaksi pembayaran
-    Route::post('/payment/initiate', [PaymentController::class, 'initiate']);
+    Route::post('/payment/initiate', [PaymentController::class, 'initiate'])->middleware('throttle:payment-initiate');
 
-    Route::post('/webhook/payment/{gatewayCode}', [PaymentController::class, 'callback']);
+    Route::post('/webhook/payment/{gatewayCode}', [PaymentController::class, 'callback'])->middleware('throttle:payment-webhook');
     
     // Admin
     Route::prefix('admin')
