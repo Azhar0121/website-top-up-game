@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Provider;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 
 /**
- * PRD 4.2 "Manajemen Provider & API" + sitemap "Providers & API > Provider List & Priority":
+ * "Manajemen Provider & API" + sitemap "Providers & API > Provider List & Priority":
  * - Multi-Provider: daftar semua provider top up
  * - Control Switch: enable/disable real-time
  * - Priority Routing: atur urutan prioritas (dipakai OrderService buat auto-failover)
@@ -39,6 +40,12 @@ class ProviderController extends Controller
 
         $provider = Provider::create($validated);
 
+        AuditLogService::record(
+            action: 'created',
+            description: "Menambahkan provider \"{$provider->name}\" (prioritas {$provider->priority}).",
+            subject: $provider,
+        );
+
         return redirect()->route('admin.providers.index')
             ->with('status', "Provider \"{$provider->name}\" berhasil ditambahkan.");
     }
@@ -54,9 +61,9 @@ class ProviderController extends Controller
         $validated['is_active'] = $request->boolean('is_active');
 
         // api_key/api_secret sengaja OPSIONAL saat edit - kalau field-nya dikosongkan,
-        // kredensial yang sudah tersimpan TIDAK ditimpa jadi kosong. Form cuma
-        // menampilkan placeholder "biarkan kosong kalau tidak ingin ganti", bukan
-        // menampilkan kredensial asli (demi keamanan, walau toh terenkripsi di DB).
+        // kredensial yang sudah tersimpan TIDAK ditimpa jadi kosong.
+        $credentialChanged = $request->filled('api_key') || $request->filled('api_secret');
+
         if (! $request->filled('api_key')) {
             unset($validated['api_key']);
         }
@@ -64,7 +71,26 @@ class ProviderController extends Controller
             unset($validated['api_secret']);
         }
 
+        // Field kredensial SENGAJA tidak pernah ikut di-diff/disimpan ke audit log
+        $trackedFields = ['name', 'code', 'base_url', 'priority', 'is_active'];
+        $before = $provider->only($trackedFields);
+
         $provider->update($validated);
+
+        $changes = AuditLogService::diff($before, $provider->only($trackedFields));
+
+        if ($credentialChanged) {
+            $changes['credentials'] = ['old' => '(disembunyikan)', 'new' => 'diperbarui'];
+        }
+
+        if (! empty($changes)) {
+            AuditLogService::record(
+                action: 'updated',
+                description: 'Mengedit provider "'.$provider->name.'"'.($credentialChanged ? ' (termasuk update kredensial API).' : '.'),
+                subject: $provider,
+                changes: $changes,
+            );
+        }
 
         return redirect()->route('admin.providers.index')
             ->with('status', "Provider \"{$provider->name}\" berhasil diupdate.");
@@ -72,12 +98,19 @@ class ProviderController extends Controller
 
     /**
      * POST /admin/providers/{provider}/toggle
-     * Control Switch enable/disable real-time (PRD 4.2) - dipisah dari form edit
-     * lengkap supaya bisa 1-klik langsung dari halaman daftar.
+     * Control Switch enable/disable real-time
      */
     public function toggle(Provider $provider)
     {
-        $provider->update(['is_active' => ! $provider->is_active]);
+        $wasActive = $provider->is_active;
+        $provider->update(['is_active' => ! $wasActive]);
+
+        AuditLogService::record(
+            action: 'updated',
+            description: $provider->name.' berhasil '.($provider->is_active ? 'diaktifkan' : 'dinonaktifkan').'.',
+            subject: $provider,
+            changes: ['is_active' => ['old' => $wasActive, 'new' => $provider->is_active]],
+        );
 
         return back()->with('status', $provider->name.' berhasil '.($provider->is_active ? 'diaktifkan' : 'dinonaktifkan').'.');
     }

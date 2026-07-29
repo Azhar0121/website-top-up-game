@@ -8,6 +8,7 @@ use App\Models\Game;
 use App\Models\Product;
 use App\Models\Provider;
 use App\Models\ProviderProduct;
+use App\Services\AuditLogService;
 use App\Services\PriceSyncService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -60,6 +61,12 @@ class ProductController extends Controller
 
         $product = Product::create($validated);
 
+        AuditLogService::record(
+            action: 'created',
+            description: "Membuat produk \"{$product->name}\" (margin: {$product->margin_type} {$product->margin_value}).",
+            subject: $product,
+        );
+
         $this->syncProviderMapping($product, $costPrice, $providerSkuCode);
 
         if ($product->auto_price) {
@@ -100,7 +107,25 @@ class ProductController extends Controller
         $providerSkuCode = $validated['provider_sku_code'] ?: null;
         unset($validated['cost_price'], $validated['provider_sku_code']);
 
+        $before = $product->only(array_keys($validated));
+
         $product->update($validated);
+
+        $changes = AuditLogService::diff($before, $product->only(array_keys($validated)));
+
+        if (! empty($changes)) {
+            $marginFields = ['margin_type', 'margin_value', 'base_price'];
+            $isMarginChange = ! empty(array_intersect(array_keys($changes), $marginFields));
+
+            AuditLogService::record(
+                action: 'updated',
+                description: $isMarginChange
+                    ? "Mengubah margin/harga produk \"{$product->name}\"."
+                    : "Mengedit produk \"{$product->name}\".",
+                subject: $product,
+                changes: $changes,
+            );
+        }
 
         $this->syncProviderMapping($product, $costPrice, $providerSkuCode);
 
@@ -133,14 +158,22 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        $productName = $product->name;
+
         try {
             $product->delete();
         } catch (\Illuminate\Database\QueryException $e) {
             return back()->with('error', "Produk \"{$product->name}\" tidak bisa dihapus karena sudah punya riwayat transaksi. Nonaktifkan saja produk ini jika tidak ingin dijual lagi.");
         }
 
+        AuditLogService::record(
+            action: 'deleted',
+            description: "Menghapus produk \"{$productName}\".",
+            subject: $product,
+        );
+
         return redirect()->route('admin.products.index')
-            ->with('status', "Produk \"{$product->name}\" berhasil dihapus.");
+            ->with('status', "Produk \"{$productName}\" berhasil dihapus.");
     }
 
     private function validateProduct(Request $request): array

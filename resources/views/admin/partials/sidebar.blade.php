@@ -82,9 +82,8 @@
         </a>
 
         <div class="admin-nav-section">System &amp; Security</div>
-        <a href="#" class="admin-nav-link disabled" tabindex="-1">
-            <i class="bi bi-shield-lock-fill"></i> Roles &amp; Audit Log
-            <span class="admin-nav-soon">Segera</span>
+        <a href="{{ route('admin.audit-logs.index') }}" class="admin-nav-link {{ $isActive('admin.audit-logs.*') }}">
+            <i class="bi bi-shield-lock-fill"></i> Audit Log
         </a>
     </nav>
 </aside>

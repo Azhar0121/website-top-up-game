@@ -4,19 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Game;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 /**
- * CRUD Game untuk Dashboard Admin (PRD 6: menu "Games & Products").
- *
- * Catatan desain: business logic di sini masih tipis (cuma validasi + simpan file),
- * jadi TIDAK ditaruh di Service Layer terpisah - konsisten dengan keputusan yang sama
- * di App\Http\Controllers\Api\Admin\ProductController (margin logic yang lebih kompleks
- * itulah yang dipindah ke PriceSyncService). Kalau nanti ada logic tambahan (misal generate
- * banner otomatis, sinkron ke CDN, dll), baru layak dipisah ke App\Services\GameService.
+ * CRUD Game untuk Dashboard Admin
  */
 class GameController extends Controller
 {
@@ -60,7 +55,13 @@ class GameController extends Controller
         $validated['is_popular'] = $request->boolean('is_popular');
         $validated['is_active'] = $request->boolean('is_active', true);
 
-        Game::create($validated);
+        $game = Game::create($validated);
+
+        AuditLogService::record(
+            action: 'created',
+            description: "Membuat game \"{$game->name}\".",
+            subject: $game,
+        );
 
         return redirect()->route('admin.games.index')
             ->with('status', 'Game baru berhasil ditambahkan.');
@@ -99,7 +100,18 @@ class GameController extends Controller
         $validated['is_popular'] = $request->boolean('is_popular');
         $validated['is_active'] = $request->boolean('is_active');
 
+        $before = $game->only(array_keys($validated));
         $game->update($validated);
+        $changes = AuditLogService::diff($before, $game->only(array_keys($validated)));
+
+        if (! empty($changes)) {
+            AuditLogService::record(
+                action: 'updated',
+                description: "Mengedit game \"{$game->name}\".",
+                subject: $game,
+                changes: $changes,
+            );
+        }
 
         return redirect()->route('admin.games.index')
             ->with('status', "Game \"{$game->name}\" berhasil diupdate.");
@@ -110,9 +122,9 @@ class GameController extends Controller
      */
     public function destroy(Game $game)
     {
-        // Cascade delete kategori & produk sudah diatur di migration (cascadeOnDelete),
-        // tapi kita tetap kasih peringatan jelas di UI (lihat konfirmasi modal di index.blade.php)
-        // karena ini operasi destruktif dan tidak bisa dibatalkan.
+        $gameName = $game->name;
+
+        // Cascade delete kategori & produk sudah diatur di migration (cascadeOnDelete)
         if ($game->banner_image) {
             Storage::disk('public')->delete($game->banner_image);
         }
@@ -122,6 +134,12 @@ class GameController extends Controller
         }
 
         $game->delete();
+
+        AuditLogService::record(
+            action: 'deleted',
+            description: "Menghapus game \"{$gameName}\" (beserta kategori & produk di dalamnya).",
+            subject: $game,
+        );
 
         return redirect()->route('admin.games.index')
             ->with('status', "Game \"{$game->name}\" berhasil dihapus.");

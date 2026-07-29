@@ -9,14 +9,7 @@ use Illuminate\Support\Str;
 
 /**
  * 2FA OTP khusus untuk login STAFF (owner/admin/finance/cs/marketing/developer),
- * sesuai PRD 5. Security & Proteksi: "2FA OTP untuk... Login Admin". Customer
- * biasa TIDAK melalui alur ini.
- *
- * Kenapa disimpan di session (bukan kolom baru di tabel users)?
- * - Tidak perlu migration tambahan.
- * - Kode OTP itu sifatnya sementara per-percobaan-login, bukan data permanen
- *   milik user, jadi session (yang sudah pakai SESSION_DRIVER=database di
- *   project ini) sudah tempat yang pas & otomatis expired dengan sendirinya.
+ * Customer biasa TIDAK melalui alur ini.
  */
 class TwoFactorService
 {
@@ -75,7 +68,7 @@ class TwoFactorService
             return false;
         }
 
-        // Batasi maksimal 5x coba salah per challenge, biar tidak bisa di-brute-force.
+        // Batasi maksimal 5x coba salah per challenge, agar tidak bisa di-brute-force.
         if (($data['attempts'] ?? 0) >= 5) {
             $this->clear();
 

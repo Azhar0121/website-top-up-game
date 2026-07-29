@@ -3,6 +3,7 @@
 use App\Http\Controllers\PageController;    
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\GameController as AdminGameController;
@@ -95,6 +96,9 @@ Route::prefix('admin')->name('admin.')->middleware('restrict_admin_ip')->group(f
         Route::post('/users/bulk-update-role', [\App\Http\Controllers\Admin\UserController::class, 'bulkUpdateRole'])->name('users.bulk-update-role');
         Route::get('/users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+
+        // Audit Log (PRD 4.6: siapa admin ngedit/hapus apa & kapan + dari IP mana)
+        Route::get('/audit-logs', [AdminAuditLogController::class, 'index'])->name('audit-logs.index');
 
         // Reports
         Route::get('/reports/sales-revenue', [AdminReportController::class, 'salesRevenue'])->name('reports.sales-revenue');

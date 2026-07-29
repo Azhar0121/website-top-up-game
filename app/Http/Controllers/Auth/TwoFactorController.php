@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\AuditLogService;
 use App\Services\TwoFactorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -54,6 +55,13 @@ class TwoFactorController extends Controller
 
         Auth::loginUsingId($user->id, $remember);
         $request->session()->regenerate();
+
+        AuditLogService::record(
+            action: 'login',
+            description: "{$user->name} login ke dashboard admin (setelah verifikasi 2FA).",
+            subject: $user,
+            actor: $user,
+        );
 
         return redirect()->to($intended);
     }

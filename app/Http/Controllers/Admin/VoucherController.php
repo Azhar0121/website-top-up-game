@@ -4,15 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Voucher;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-/**
- * PRD 3 "Marketing & Konversi" (input kode promo saat checkout) + sitemap "Content &
- * Marketing (CMS) > Voucher & Promo Code". Logic validasi kode voucher sudah ada di
- * VoucherService (dipakai checkout) - controller ini cuma CRUD datanya lewat dashboard,
- * sebelumnya cuma bisa dibuat manual lewat seeder/tinker.
- */
 class VoucherController extends Controller
 {
     public function index(Request $request)
@@ -40,6 +35,12 @@ class VoucherController extends Controller
 
         $voucher = Voucher::create($validated);
 
+        AuditLogService::record(
+            action: 'created',
+            description: "Membuat voucher \"{$voucher->code}\".",
+            subject: $voucher,
+        );
+
         return redirect()->route('admin.vouchers.index')
             ->with('status', "Voucher \"{$voucher->code}\" berhasil dibuat.");
     }
@@ -55,7 +56,18 @@ class VoucherController extends Controller
         $validated['code'] = strtoupper($validated['code']);
         $validated['is_active'] = $request->boolean('is_active');
 
+        $before = $voucher->only(array_keys($validated));
         $voucher->update($validated);
+        $changes = AuditLogService::diff($before, $voucher->only(array_keys($validated)));
+
+        if (! empty($changes)) {
+            AuditLogService::record(
+                action: 'updated',
+                description: "Mengedit voucher \"{$voucher->code}\".",
+                subject: $voucher,
+                changes: $changes,
+            );
+        }
 
         return redirect()->route('admin.vouchers.index')
             ->with('status', "Voucher \"{$voucher->code}\" berhasil diupdate.");
@@ -63,9 +75,16 @@ class VoucherController extends Controller
 
     public function destroy(Voucher $voucher)
     {
+        $code = $voucher->code;
         $voucher->delete();
 
-        return back()->with('status', "Voucher \"{$voucher->code}\" berhasil dihapus.");
+        AuditLogService::record(
+            action: 'deleted',
+            description: "Menghapus voucher \"{$code}\".",
+            subject: $voucher,
+        );
+
+        return back()->with('status', "Voucher \"{$code}\" berhasil dihapus.");
     }
 
     private function validateVoucher(Request $request, ?int $ignoreId = null): array

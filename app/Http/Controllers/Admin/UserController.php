@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
@@ -58,7 +59,16 @@ class UserController extends Controller
         }
 
         $roleNames = collect($validated['roles'])->map(fn ($name) => Role::firstOrCreate(['name' => $name])->name);
+
+        $before = $user->roles->pluck('name')->all();
         $user->syncRoles($roleNames->all());
+
+        AuditLogService::record(
+            action: 'role_updated',
+            description: "Mengubah role \"{$user->name}\" ({$user->email}).",
+            subject: $user,
+            changes: ['roles' => ['old' => $before, 'new' => $roleNames->all()]],
+        );
 
         return redirect()->route('admin.users.index')
             ->with('status', "Role {$user->name} berhasil diubah menjadi: ".$roleNames->implode(', ').'.');
@@ -80,6 +90,12 @@ class UserController extends Controller
         foreach ($users as $user) {
             $user->assignRole($role);
         }
+
+        AuditLogService::record(
+            action: 'role_updated',
+            description: "Menambahkan role \"{$role}\" ke {$users->count()} user sekaligus: ".$users->pluck('name')->implode(', ').'.',
+            changes: ['role_added' => $role, 'user_ids' => $validated['user_ids']],
+        );
 
         return redirect()->route('admin.users.index')
             ->with('status', "Role \"{$role}\" berhasil ditambahkan ke {$users->count()} user.");

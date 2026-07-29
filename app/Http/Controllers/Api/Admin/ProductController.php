@@ -11,9 +11,7 @@ use Illuminate\Support\Facades\Validator;
 class ProductController extends Controller
 {
     /**
-     * Atur margin untuk satu produk (PRD 4.3: Margin dinamis Fixed/Persentase).
      * PATCH /api/v1/admin/products/{product}/margin
-     * Body: { "margin_type": "percentage", "margin_value": 15, "auto_price": true }
      */
     public function updateMargin(Product $product, Request $request, PriceSyncService $priceSyncService)
     {
@@ -34,7 +32,6 @@ class ProductController extends Controller
         ]);
 
         // Langsung hitung ulang harga begitu margin diubah, supaya admin
-        // langsung lihat efeknya tanpa perlu trigger sync terpisah.
         $result = $priceSyncService->sync($product->fresh());
 
         return response()->json([

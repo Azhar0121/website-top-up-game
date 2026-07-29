@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Game;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -47,7 +48,13 @@ class CategoryController extends Controller
         $validated = $this->validateCategory($request);
         $validated['is_active'] = $request->boolean('is_active', true);
 
-        Category::create($validated);
+        $category = Category::create($validated);
+
+        AuditLogService::record(
+            action: 'created',
+            description: "Membuat kategori \"{$category->name}\".",
+            subject: $category,
+        );
 
         return redirect()->route('admin.categories.index')
             ->with('status', 'Kategori baru berhasil ditambahkan.');
@@ -71,7 +78,18 @@ class CategoryController extends Controller
         $validated = $this->validateCategory($request);
         $validated['is_active'] = $request->boolean('is_active');
 
+        $before = $category->only(array_keys($validated));
         $category->update($validated);
+        $changes = AuditLogService::diff($before, $category->only(array_keys($validated)));
+
+        if (! empty($changes)) {
+            AuditLogService::record(
+                action: 'updated',
+                description: "Mengedit kategori \"{$category->name}\".",
+                subject: $category,
+                changes: $changes,
+            );
+        }
 
         return redirect()->route('admin.categories.index')
             ->with('status', "Kategori \"{$category->name}\" berhasil diupdate.");
@@ -86,10 +104,17 @@ class CategoryController extends Controller
             return back()->with('error', "Kategori \"{$category->name}\" tidak bisa dihapus karena masih punya produk di dalamnya. Pindahkan atau hapus dulu produknya.");
         }
 
+        $categoryName = $category->name;
         $category->delete();
 
+        AuditLogService::record(
+            action: 'deleted',
+            description: "Menghapus kategori \"{$categoryName}\".",
+            subject: $category,
+        );
+
         return redirect()->route('admin.categories.index')
-            ->with('status', "Kategori \"{$category->name}\" berhasil dihapus.");
+            ->with('status', "Kategori \"{$categoryName}\" berhasil dihapus.");
     }
 
     private function validateCategory(Request $request): array

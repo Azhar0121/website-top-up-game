@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\AuditLogService;
 use App\Services\OrderService;
 use App\Services\PaymentGateways\PaymentGatewayServiceFactory;
 use Illuminate\Http\Request;
@@ -88,6 +89,12 @@ class OrderController extends Controller
             return back()->with('error', $exception->getMessage());
         }
 
+        AuditLogService::record(
+            action: 'force_success',
+            description: "Force Success order {$order->invoice_number} secara manual. Catatan: {$validated['note']}",
+            subject: $order,
+        );
+
         return redirect()->route('admin.orders.show', $order)
             ->with('status', 'Order ditandai Success secara manual dan tercatat pada riwayat.');
     }
@@ -136,6 +143,12 @@ class OrderController extends Controller
                 \App\Jobs\ProcessTopUpOrder::dispatch($order->fresh());
             }
 
+            AuditLogService::record(
+                action: 'status_override',
+                description: "Override status order {$order->invoice_number} jadi 'paid' berdasarkan cek manual ke payment gateway.",
+                subject: $order,
+            );
+
             return redirect()->route('admin.orders.show', $order)
                 ->with('status', 'Status ditemukan: sudah dibayar. Order dilanjutkan ke provider.');
         }
@@ -144,6 +157,12 @@ class OrderController extends Controller
             $order->transitionTo(
                 $mappedStatus === 'expired' ? Order::STATUS_EXPIRED : Order::STATUS_CANCELLED,
                 "Pembayaran {$mappedStatus} menurut pengecekan manual ke {$payment->paymentGateway->name}"
+            );
+
+            AuditLogService::record(
+                action: 'status_override',
+                description: "Override status order {$order->invoice_number} jadi '{$mappedStatus}' berdasarkan cek manual ke payment gateway.",
+                subject: $order,
             );
 
             return redirect()->route('admin.orders.show', $order)
