@@ -4,8 +4,11 @@ use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
+use App\Http\Controllers\Admin\BannerController as AdminBannerController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\CmsPageController as AdminCmsPageController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\GameController as AdminGameController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController;
@@ -17,9 +20,7 @@ use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Customer\AccountController;
 
 
-Route::get('/', function () {
-    return view('customer.home');
-});
+Route::get('/', [PageController::class, 'home']);
 
 Route::get('/game/{slug}', [PageController::class, 'gameDetail']);
 
@@ -28,6 +29,10 @@ Route::get('/order/{invoice?}', [PageController::class, 'orderStatus']);
 Route::get('/cek-transaksi', function () {
     return redirect('/order');
 });
+
+Route::get('/faq', [PageController::class, 'faq'])->name('faq');
+Route::get('/syarat-ketentuan', [PageController::class, 'terms'])->name('terms');
+Route::get('/kebijakan-privasi', [PageController::class, 'privacy'])->name('privacy');
 
 // ==================== AUTH (customer & staff, satu form yang sama) ====================
 Route::get('/login', [LoginController::class, 'show'])->name('login');
@@ -90,6 +95,16 @@ Route::prefix('admin')->name('admin.')->middleware('restrict_admin_ip')->group(f
 
         // Voucher & Promo Code
         Route::resource('vouchers', \App\Http\Controllers\Admin\VoucherController::class)->except(['show']);
+
+        // Content & Marketing / CMS ringan (sitemap "Content & Marketing (CMS)")
+        Route::resource('banners', AdminBannerController::class)->except(['show']);
+        Route::post('/banners/{banner}/toggle', [AdminBannerController::class, 'toggle'])->name('banners.toggle');
+
+        Route::resource('faqs', AdminFaqController::class)->except(['show']);
+
+        Route::get('/pages', [AdminCmsPageController::class, 'index'])->name('pages.index');
+        Route::get('/pages/{slug}/edit', [AdminCmsPageController::class, 'edit'])->name('pages.edit');
+        Route::put('/pages/{slug}', [AdminCmsPageController::class, 'update'])->name('pages.update');
 
         // Kelola User
         Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');

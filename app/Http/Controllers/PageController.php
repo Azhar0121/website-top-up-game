@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Banner;
+use App\Models\Faq;
 use App\Models\Game;
+use App\Models\Page;
 use App\Models\PaymentGateway;
 
 class PageController extends Controller
 {
     public function home()
     {
-        return view('customer.home');
+        $banners = Banner::active()->orderBy('sort_order')->get();
+
+        return view('customer.home', compact('banners'));
     }
 
     public function gameDetail(string $slug)
@@ -31,5 +36,26 @@ class PageController extends Controller
         return view('customer.order-status', [
             'invoice' => $invoice,
         ]);
+    }
+
+    public function faq()
+    {
+        $faqs = Faq::active()->orderBy('sort_order')->get();
+
+        return view('customer.faq', compact('faqs'));
+    }
+
+    public function terms()
+    {
+        $page = Page::where('slug', 'terms')->firstOrFail();
+
+        return view('customer.static-page', compact('page'));
+    }
+
+    public function privacy()
+    {
+        $page = Page::where('slug', 'privacy')->firstOrFail();
+
+        return view('customer.static-page', compact('page'));
     }
 }

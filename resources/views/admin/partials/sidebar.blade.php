@@ -76,9 +76,14 @@
         </a>
 
         <div class="admin-nav-section">Content &amp; Marketing</div>
-        <a href="#" class="admin-nav-link disabled" tabindex="-1">
-            <i class="bi bi-megaphone-fill"></i> CMS &amp; Banner
-            <span class="admin-nav-soon">Segera</span>
+        <a href="{{ route('admin.banners.index') }}" class="admin-nav-link {{ $isActive('admin.banners.*') }}">
+            <i class="bi bi-images"></i> Banner
+        </a>
+        <a href="{{ route('admin.faqs.index') }}" class="admin-nav-link {{ $isActive('admin.faqs.*') }}">
+            <i class="bi bi-question-circle-fill"></i> FAQ
+        </a>
+        <a href="{{ route('admin.pages.index') }}" class="admin-nav-link {{ $isActive('admin.pages.*') }}">
+            <i class="bi bi-file-earmark-text-fill"></i> Pages
         </a>
 
         <div class="admin-nav-section">System &amp; Security</div>

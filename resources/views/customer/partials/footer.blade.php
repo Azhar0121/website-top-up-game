@@ -14,7 +14,7 @@
                 <h6 class="footer-heading">Bantuan</h6>
                 <ul class="list-unstyled small">
                     <li><a href="{{ url('/cek-transaksi') }}">Cek Transaksi</a></li>
-                    <li><a href="#">Cara Top Up</a></li>
+                    <li><a href="{{ route('faq') }}">FAQ</a></li>
                     <li><a href="#">Hubungi Kami</a></li>
                 </ul>
             </div>
@@ -22,8 +22,8 @@
                 <h6 class="footer-heading">Perusahaan</h6>
                 <ul class="list-unstyled small">
                     <li><a href="#">Tentang Kami</a></li>
-                    <li><a href="#">Syarat & Ketentuan</a></li>
-                    <li><a href="#">Kebijakan Privasi</a></li>
+                    <li><a href="{{ route('terms') }}">Syarat & Ketentuan</a></li>
+                    <li><a href="{{ route('privacy') }}">Kebijakan Privasi</a></li>
                 </ul>
             </div>
             <div class="col-md-4">

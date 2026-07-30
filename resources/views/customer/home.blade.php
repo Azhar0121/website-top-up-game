@@ -45,6 +45,39 @@
         </div>
     </section>
 
+    @if ($banners->isNotEmpty())
+        <div class="container">
+            <div id="bannerCarousel" class="carousel slide banner-carousel" data-bs-ride="carousel" data-bs-interval="4500">
+                <div class="carousel-indicators">
+                    @foreach ($banners as $i => $banner)
+                        <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="{{ $i }}" class="{{ $i === 0 ? 'active' : '' }}" aria-current="{{ $i === 0 ? 'true' : 'false' }}" aria-label="Slide {{ $i + 1 }}"></button>
+                    @endforeach
+                </div>
+                <div class="carousel-inner">
+                    @foreach ($banners as $i => $banner)
+                        <div class="carousel-item {{ $i === 0 ? 'active' : '' }}">
+                            @if ($banner->link_url)
+                                <a href="{{ $banner->link_url }}">
+                                    <img src="{{ $banner->image_url }}" class="banner-slide-img" alt="{{ $banner->title }}">
+                                </a>
+                            @else
+                                <img src="{{ $banner->image_url }}" class="banner-slide-img" alt="{{ $banner->title }}">
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+                @if ($banners->count() > 1)
+                    <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    </button>
+                @endif
+            </div>
+        </div>
+    @endif
+
     <div class="container filter-chips">
         <div class="d-flex gap-2 flex-wrap justify-content-center">
             <button type="button" class="filter-chip active" data-filter="all">Semua Game</button>
