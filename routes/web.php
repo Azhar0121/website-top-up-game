@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\GameController as AdminGameController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\PaymentGatewayController as AdminPaymentGatewayController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Auth\GoogleController;
@@ -102,6 +103,12 @@ Route::prefix('admin')->name('admin.')->middleware('restrict_admin_ip')->group(f
 
         Route::resource('faqs', AdminFaqController::class)->except(['show']);
 
+        // Payments & Finance (sitemap "Payments & Finance > Payment Gateway Settings")
+        Route::get('/payment-gateways', [AdminPaymentGatewayController::class, 'index'])->name('payment-gateways.index');
+        Route::get('/payment-gateways/{paymentGateway}/edit', [AdminPaymentGatewayController::class, 'edit'])->name('payment-gateways.edit');
+        Route::put('/payment-gateways/{paymentGateway}', [AdminPaymentGatewayController::class, 'update'])->name('payment-gateways.update');
+        Route::post('/payment-gateways/{paymentGateway}/toggle', [AdminPaymentGatewayController::class, 'toggle'])->name('payment-gateways.toggle');
+
         Route::get('/pages', [AdminCmsPageController::class, 'index'])->name('pages.index');
         Route::get('/pages/{slug}/edit', [AdminCmsPageController::class, 'edit'])->name('pages.edit');
         Route::put('/pages/{slug}', [AdminCmsPageController::class, 'update'])->name('pages.update');
@@ -112,7 +119,7 @@ Route::prefix('admin')->name('admin.')->middleware('restrict_admin_ip')->group(f
         Route::get('/users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
 
-        // Audit Log (PRD 4.6: siapa admin ngedit/hapus apa & kapan + dari IP mana)
+        // Audit Log
         Route::get('/audit-logs', [AdminAuditLogController::class, 'index'])->name('audit-logs.index');
 
         // Reports

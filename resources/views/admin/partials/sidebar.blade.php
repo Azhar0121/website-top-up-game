@@ -47,13 +47,8 @@
         </a>
 
         <div class="admin-nav-section">Payments &amp; Finance</div>
-        <a href="#" class="admin-nav-link disabled" tabindex="-1">
+        <a href="{{ route('admin.payment-gateways.index') }}" class="admin-nav-link {{ $isActive('admin.payment-gateways.*') }}">
             <i class="bi bi-credit-card-fill"></i> Payment Gateway
-            <span class="admin-nav-soon">Segera</span>
-        </a>
-        <a href="#" class="admin-nav-link disabled" tabindex="-1">
-            <i class="bi bi-wallet-fill"></i> Wallet &amp; Withdrawal
-            <span class="admin-nav-soon">Segera</span>
         </a>
 
         <div class="admin-nav-section">Customers &amp; Affiliates</div>
