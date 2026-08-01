@@ -20,11 +20,11 @@
     const summaryProductPrice = document.getElementById('summary-product-price');
 
     /**
-     * Ambil token reCAPTCHA v3 buat action tertentu
+     * Ambil token reCAPTCHA v3 untuk action tertentu
      */
     function getRecaptchaToken(action) {
         const siteKey = window.APP_CONFIG?.recaptchaSiteKey;
-l
+
         if (!siteKey || typeof grecaptcha === 'undefined') {
             return Promise.resolve(null);
         }
@@ -112,14 +112,21 @@ l
             return;
         }
 
-        productGrid.innerHTML = products.map((product) => `
+        productGrid.innerHTML = products.map((product) => {
+            const hasFlashSale = product.flash_sale_price !== null && product.flash_sale_price !== undefined;
+            const effectivePrice = hasFlashSale ? product.flash_sale_price : product.base_price;
+
+            return `
             <div class="col-6 col-md-4">
-                <button type="button" class="product-card" data-product-id="${product.id}" data-product='${JSON.stringify(product)}'>
+                <button type="button" class="product-card ${hasFlashSale ? 'has-flash-sale' : ''}" data-product-id="${product.id}" data-product='${JSON.stringify(product)}'>
+                    ${hasFlashSale ? '<span class="product-card-flash-badge"><i class="bi bi-lightning-charge-fill"></i> Flash Sale</span>' : ''}
                     <div class="product-card-name">${escapeHtml(product.name)}</div>
-                    <div class="product-card-price">${formatRupiah(product.base_price)}</div>
+                    ${hasFlashSale ? `<div class="product-card-price-old">${formatRupiah(product.base_price)}</div>` : ''}
+                    <div class="product-card-price">${formatRupiah(effectivePrice)}</div>
                 </button>
             </div>
-        `).join('');
+        `;
+        }).join('');
 
         productGrid.querySelectorAll('.product-card').forEach((card) => {
             card.addEventListener('click', function () {
@@ -127,12 +134,15 @@ l
                 card.classList.add('selected');
 
                 selectedProduct = JSON.parse(card.dataset.product);
+                const hasFlashSale = selectedProduct.flash_sale_price !== null && selectedProduct.flash_sale_price !== undefined;
+                const effectivePrice = hasFlashSale ? selectedProduct.flash_sale_price : selectedProduct.base_price;
+
                 summaryProductName.textContent = selectedProduct.name;
-                summaryProductPrice.textContent = formatRupiah(selectedProduct.base_price);
+                summaryProductPrice.textContent = formatRupiah(effectivePrice);
                 orderSummary.classList.remove('d-none');
 
                 submitBtn.disabled = false;
-                submitBtn.textContent = `Bayar ${formatRupiah(selectedProduct.base_price)}`;
+                submitBtn.textContent = `Bayar ${formatRupiah(effectivePrice)}`;
             });
         });
     }
@@ -280,7 +290,13 @@ l
     function resetSubmitButton() {
         isSubmitting = false;
         submitBtn.disabled = false;
-        submitBtn.textContent = selectedProduct ? `Bayar ${formatRupiah(selectedProduct.base_price)}` : 'Pilih nominal dulu';
+        if (selectedProduct) {
+            const hasFlashSale = selectedProduct.flash_sale_price !== null && selectedProduct.flash_sale_price !== undefined;
+            const effectivePrice = hasFlashSale ? selectedProduct.flash_sale_price : selectedProduct.base_price;
+            submitBtn.textContent = `Bayar ${formatRupiah(effectivePrice)}`;
+        } else {
+            submitBtn.textContent = 'Pilih nominal dulu';
+        }
     }
 
     form.addEventListener('submit', handleSubmit);

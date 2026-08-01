@@ -38,7 +38,7 @@
         </div>
         <hr class="footer-divider">
         <p class="text-light-muted small mb-0 text-center">
-            &copy; {{ date('Y') }} TopUpKilat. Dibuat untuk keperluan pembelajaran.
+            &copy; {{ date('Y') }} TopUpKilat
         </p>
     </div>
 </footer>

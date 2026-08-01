@@ -37,6 +37,9 @@
         <a href="{{ route('admin.vouchers.index') }}" class="admin-nav-link {{ $isActive('admin.vouchers.*') }}">
             <i class="bi bi-lightning-fill"></i> Vouchers &amp; Promo
         </a>
+        <a href="{{ route('admin.flash-sales.index') }}" class="admin-nav-link {{ $isActive('admin.flash-sales.*') }}">
+            <i class="bi bi-stopwatch-fill"></i> Flash Sale
+        </a>
 
         <div class="admin-nav-section">Providers &amp; API</div>
         <a href="{{ route('admin.providers.index') }}" class="admin-nav-link {{ $isActive('admin.providers.*') }}">

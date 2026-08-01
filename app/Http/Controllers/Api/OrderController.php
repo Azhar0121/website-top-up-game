@@ -47,7 +47,16 @@ class OrderController extends Controller
         }
 
         $role = Auth::check() ? (Auth::user()->role ?? 'customer') : 'customer';
-        $subtotal = $product->priceForRole($role) * $quantity;
+
+        // Flash sale diterapkan OTOMATIS (tidak perlu kode voucher) kalau produk ini
+        // sedang punya flash sale yang berjalan - dihitung ulang di server, jangan
+        // pernah percaya harga dari request/client.
+        $normalPrice = $product->priceForRole($role);
+        $flashSale = $product->activeFlashSale();
+        $priceAfterFlashSale = $flashSale ? $product->flashSalePrice($role) : $normalPrice;
+        $flashSaleDiscount = ($normalPrice - $priceAfterFlashSale) * $quantity;
+
+        $subtotal = $priceAfterFlashSale * $quantity;
         $discountAmount = 0;
         $voucherCode = $request->filled('voucher_code') ? strtoupper($request->voucher_code) : null;
         $voucher = null;
@@ -76,6 +85,8 @@ class OrderController extends Controller
             $voucherCode,
             $voucher,
             $voucherService,
+            $flashSale,
+            $flashSaleDiscount,
             $request
         ) {
             $order = Order::create([
@@ -89,6 +100,8 @@ class OrderController extends Controller
                 'price'             => $finalPrice,
                 'voucher_code'      => $voucherCode,
                 'discount_amount'   => $discountAmount,
+                'flash_sale_id'     => $flashSale?->id,
+                'flash_sale_discount' => $flashSaleDiscount,
                 'status'            => Order::STATUS_PENDING_PAYMENT,
             ]);
 
@@ -111,6 +124,7 @@ class OrderController extends Controller
             'data' => [
                 'invoice_number' => $order->invoice_number,
                 'subtotal'       => number_format($subtotal, 2, '.', ''),
+                'flash_sale_discount' => $order->flash_sale_discount,
                 'discount_amount' => $order->discount_amount,
                 'voucher_code'   => $order->voucher_code,
                 'price'          => $order->price,

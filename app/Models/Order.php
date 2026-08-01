@@ -16,6 +16,7 @@ class Order extends Model
         'invoice_number', 'user_id', 'product_id', 'provider_id',
         'target_game_id', 'target_server_id', 'customer_email', 'customer_whatsapp',
         'quantity', 'price', 'cost_price', 'voucher_code', 'discount_amount',
+        'flash_sale_id', 'flash_sale_discount',
         'status', 'paid_at', 'completed_at', 'expired_at', 'stock_deducted_at',
     ];
 
@@ -23,11 +24,17 @@ class Order extends Model
         'price'           => 'decimal:2',
         'cost_price'      => 'decimal:2',
         'discount_amount' => 'decimal:2',
+        'flash_sale_discount' => 'decimal:2',
         'paid_at'         => 'datetime',
         'completed_at'    => 'datetime',
         'expired_at'      => 'datetime',
         'stock_deducted_at' => 'datetime',
     ];
+
+    public function flashSale(): BelongsTo
+    {
+        return $this->belongsTo(FlashSale::class);
+    }
 
     // Konstanta status
     public const STATUS_PENDING_PAYMENT = 'pending_payment';

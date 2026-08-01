@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\CmsPageController as AdminCmsPageController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
+use App\Http\Controllers\Admin\FlashSaleController as AdminFlashSaleController;
 use App\Http\Controllers\Admin\GameController as AdminGameController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\PaymentGatewayController as AdminPaymentGatewayController;
@@ -96,6 +97,10 @@ Route::prefix('admin')->name('admin.')->middleware('restrict_admin_ip')->group(f
 
         // Voucher & Promo Code
         Route::resource('vouchers', \App\Http\Controllers\Admin\VoucherController::class)->except(['show']);
+
+        // Flash Sale
+        Route::resource('flash-sales', AdminFlashSaleController::class)->except(['show']);
+        Route::post('/flash-sales/{flash_sale}/toggle', [AdminFlashSaleController::class, 'toggle'])->name('flash-sales.toggle');
 
         // Content & Marketing / CMS ringan (sitemap "Content & Marketing (CMS)")
         Route::resource('banners', AdminBannerController::class)->except(['show']);
