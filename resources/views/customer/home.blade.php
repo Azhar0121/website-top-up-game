@@ -16,7 +16,7 @@
         <div class="container position-relative">
             <div class="row justify-content-center text-center">
                 <div class="col-lg-9">
-                    {{-- <span class="hero-eyebrow">⚡ Proses Otomatis 1-3 Menit</span> --}}
+                    {{-- <span class="hero-eyebrow">Proses Otomatis 1-3 Menit</span> --}}
                     <h1 class="hero-title mb-3">
                         Top Up Diamond & Item Game,
                         <span class="hero-underline">
@@ -33,13 +33,6 @@
                         <input type="text" id="hero-search-input" placeholder="Cari nama game, misal: Mobile Legends..." aria-label="Cari game">
                         <button type="submit">Cari</button>
                     </form>
-
-                    {{-- <div class="hero-trust-strip">
-                        <div class="hero-trust-item"><i class="bi bi-lightning-charge-fill"></i> Proses Otomatis</div>
-                        <div class="hero-trust-item"><i class="bi bi-shield-lock-fill"></i> Pembayaran Aman</div>
-                        <div class="hero-trust-item"><i class="bi bi-controller"></i> 100+ Game Populer</div>
-                        <div class="hero-trust-item"><i class="bi bi-headset"></i> CS Siap Bantu</div>
-                    </div> --}}
                 </div>
             </div>
         </div>
@@ -81,14 +74,14 @@
     <div class="container filter-chips">
         <div class="d-flex gap-2 flex-wrap justify-content-center">
             <button type="button" class="filter-chip active" data-filter="all">Semua Game</button>
-            <button type="button" class="filter-chip" data-filter="popular">🔥 Lagi Populer</button>
-            <button type="button" class="filter-chip" data-filter="favorite">⭐ Favorit</button>
+            <button type="button" class="filter-chip" data-filter="popular"><i class="bi bi-fire"></i> Lagi Populer</button>
+            <button type="button" class="filter-chip" data-filter="favorite"><i class="bi bi-star-fill"></i> Favorit</button>
         </div>
     </div>
 
     <section class="catalog-section">
         <div class="container">
-            {{-- <div class="section-eyebrow">🎮 Katalog Game</div> --}}
+            {{-- <div class="section-eyebrow">Katalog Game</div> --}}
             <h2 class="section-heading" id="catalog-heading">Semua Game</h2>
 
             <div id="game-grid" class="row g-3" aria-live="polite">

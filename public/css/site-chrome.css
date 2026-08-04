@@ -1,0 +1,152 @@
+/* ---------- NAVBAR ---------- */
+.app-navbar {
+    background: var(--color-surface);
+    border-bottom: 1px solid #EFEBFA;
+    box-shadow: none;
+    padding-top: .7rem;
+    padding-bottom: .7rem;
+}
+
+.app-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: var(--color-text-dark);
+}
+
+.app-brand-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--color-text-dark);
+    color: var(--color-accent-yellow);
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+
+.app-brand-accent { color: var(--color-accent-pink); }
+
+.app-navbar .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-weight: 600;
+    font-size: .92rem;
+    color: var(--color-text-muted);
+    padding: .5rem .7rem;
+    border-radius: 999px;
+    transition: background .15s ease, color .15s ease;
+}
+.app-navbar .nav-link:hover,
+.app-navbar .nav-link.active {
+    color: var(--color-text-dark);
+    background: var(--color-surface-alt);
+}
+.app-navbar .nav-link i { font-size: 1rem; }
+
+/* Tombol Cek Transaksi */
+.app-nav-track-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-weight: 700;
+    font-size: .88rem;
+    color: var(--color-text-dark);
+    background: var(--color-surface-alt);
+    border: 1.5px solid #EFEBFA;
+    border-radius: 999px;
+    padding: .5rem 1rem;
+}
+.app-nav-track-btn:hover { border-color: var(--color-accent-yellow); color: var(--color-text-dark); }
+
+.app-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    border: 2px solid var(--color-bg-dark);
+    color: var(--color-bg-dark);
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: .88rem;
+    padding: .45rem 1.25rem;
+}
+.app-btn-outline:hover { background: var(--color-bg-dark); color: #fff; }
+
+.app-navbar .navbar-toggler { border: none; box-shadow: none; padding: .3rem; }
+
+@media (max-width: 991px) {
+    .app-navbar .nav-link { padding: .6rem .5rem; }
+    .app-navbar .navbar-nav { gap: .15rem; }
+}
+
+/* ---------- FOOTER ---------- */
+.app-footer {
+    background: var(--color-bg-dark);
+    color: var(--color-text-light);
+}
+
+.app-footer .app-brand-icon {
+    background: var(--color-accent-yellow);
+    color: var(--color-bg-dark);
+}
+
+.app-footer .app-brand { color: #fff; }
+
+.footer-heading {
+    font-weight: 700;
+    font-size: .85rem;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    color: rgba(255,255,255,.55);
+}
+
+.app-footer ul li { margin-bottom: .55rem; }
+.app-footer a {
+    color: rgba(245,240,255,.85);
+    font-weight: 500;
+    font-size: .92rem;
+}
+.app-footer a:hover { color: var(--color-accent-yellow); }
+
+.text-light-muted { color: rgba(245,240,255,.6); }
+.footer-divider { border-color: rgba(255,255,255,.1); margin: 2.25rem 0 1.5rem; }
+
+.footer-trust-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1.25rem 0;
+    border-top: 1px solid rgba(255,255,255,.08);
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    margin-bottom: 1.75rem;
+}
+.footer-trust-item {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-size: .85rem;
+    font-weight: 600;
+    color: rgba(255,255,255,.85);
+}
+.footer-trust-item i {
+    font-size: 1.2rem;
+    color: var(--color-accent-mint);
+}
+
+.payment-chip {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 999px;
+    padding: .35rem .9rem;
+    font-size: .78rem;
+    font-weight: 600;
+    color: rgba(255,255,255,.85);
+}

@@ -57,12 +57,18 @@ class LoginController extends Controller
 
         RateLimiter::clear($throttleKey);
         $user = Auth::user();
+
+        if ($user->is_blocked) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Akun ini telah diblokir. Hubungi admin kalau kamu merasa ini keliru.',
+            ]);
+        }
+
         $remember = $request->boolean('remember');
         $intended = $this->redirectPathFor($user);
 
-        // Staff (owner/admin/finance/cs/marketing/developer) wajib verifikasi OTP dulu.
-        // Password sudah benar di titik ini, tapi kita belum finalisasi sesi loginnya -
-        // logout dulu supaya user "belum benar-benar masuk" sampai kode OTP diverifikasi.
         if ($user->hasAnyRole($this->staffRoles)) {
             Auth::logout();
             $request->session()->invalidate();
@@ -88,10 +94,6 @@ class LoginController extends Controller
         return redirect()->route('login')->with('status', 'Kamu sudah logout.');
     }
 
-    /**
-     * Staff (owner/admin/finance/cs/marketing/developer) diarahkan ke dashboard admin,
-     * selain itu (customer biasa) diarahkan ke halaman akunnya.
-     */
     protected function redirectPathFor($user): string
     {
         if ($user->hasAnyRole($this->staffRoles)) {

@@ -1,0 +1,92 @@
+.status-tracker {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin: 1.75rem 0 2rem;
+    padding: 0 .5rem;
+}
+
+.status-tracker::before {
+    content: '';
+    position: absolute;
+    top: 19px;
+    left: 12%;
+    right: 12%;
+    height: 3px;
+    background: #E9E5F5;
+    z-index: 0;
+}
+
+.status-tracker-step {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    text-align: center;
+}
+
+.status-tracker-dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+    background: var(--color-surface);
+    border: 3px solid #E9E5F5;
+    color: var(--color-text-muted);
+    margin-bottom: .55rem;
+    transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.status-tracker-label {
+    font-size: .74rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    max-width: 84px;
+    line-height: 1.25;
+}
+
+.status-tracker-step.is-done .status-tracker-dot {
+    background: var(--color-accent-mint);
+    border-color: var(--color-accent-mint);
+    color: #fff;
+}
+.status-tracker-step.is-done .status-tracker-label { color: var(--color-text-dark); }
+
+.status-tracker-step.is-current .status-tracker-dot {
+    background: var(--color-accent-yellow);
+    border-color: var(--color-accent-yellow);
+    color: var(--color-bg-dark);
+    box-shadow: 0 0 0 5px rgba(255, 201, 60, .22);
+}
+.status-tracker-step.is-current .status-tracker-label { color: var(--color-text-dark); font-weight: 700; }
+
+.status-tracker-step.is-upcoming .status-tracker-dot {
+    background: var(--color-surface);
+    border-color: #E9E5F5;
+    color: var(--color-text-muted);
+}
+
+.status-tracker-step.is-failed .status-tracker-dot {
+    background: var(--color-accent-pink);
+    border-color: var(--color-accent-pink);
+    color: #fff;
+}
+.status-tracker-step.is-failed .status-tracker-label { color: var(--color-accent-pink); font-weight: 700; }
+
+@media (max-width: 480px) {
+    .status-tracker-dot { width: 32px; height: 32px; font-size: .82rem; }
+    .status-tracker-label { font-size: .65rem; max-width: 66px; }
+    .status-tracker::before { top: 15px; }
+}
+
+.lookup-form-light button {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}

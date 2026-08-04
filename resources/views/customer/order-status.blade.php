@@ -2,6 +2,10 @@
 
 @section('title', 'Cek Transaksi')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/order-status-theme.css') }}">
+@endpush
+
 @section('content')
 
     <div class="container py-5" style="max-width: 640px;" id="order-status-app" data-invoice="{{ $invoice }}">
@@ -10,7 +14,7 @@
 
         <form id="lookup-form" class="hero-search d-flex align-items-center mx-auto mb-4 lookup-form-light" role="search">
             <input type="text" id="invoice-input" placeholder="Masukkan nomor invoice, contoh: INV-20260708-XXXXXX" value="{{ $invoice }}">
-            <button type="submit">Cek</button>
+            <button type="submit"><i class="bi bi-search"></i> Cek</button>
         </form>
 
         <div id="order-result"></div>

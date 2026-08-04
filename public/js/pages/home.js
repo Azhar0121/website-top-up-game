@@ -27,9 +27,9 @@
         if (state.search) {
             heading.textContent = `Hasil pencarian "${state.search}"`;
         } else if (state.filter === 'popular') {
-            heading.textContent = '🔥 Lagi Populer';
+            heading.textContent = 'Lagi Populer';
         } else if (state.filter === 'favorite') {
-            heading.textContent = '⭐ Game Favorit';
+            heading.textContent = 'Game Favorit';
         } else {
             heading.textContent = 'Semua Game';
         }
@@ -54,7 +54,7 @@
         grid.innerHTML = `
             <div class="col-12">
                 <div class="catalog-state">
-                    <div class="catalog-state-emoji">🔍</div>
+                    <div class="catalog-state-emoji"><i class="bi bi-search"></i></div>
                     <p class="mb-1 fw-bold">Game tidak ditemukan</p>
                     <p class="mb-0 small">Coba kata kunci lain, atau lihat semua game yang tersedia.</p>
                 </div>
@@ -65,7 +65,7 @@
         grid.innerHTML = `
             <div class="col-12">
                 <div class="catalog-state">
-                    <div class="catalog-state-emoji">⚠️</div>
+                    <div class="catalog-state-emoji"><i class="bi bi-exclamation-triangle-fill"></i></div>
                     <p class="mb-1 fw-bold">Gagal memuat daftar game</p>
                     <p class="mb-0 small">Periksa koneksi internet kamu, atau coba muat ulang halaman.</p>
                 </div>

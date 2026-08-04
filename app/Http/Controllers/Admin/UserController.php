@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\AuditLogService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -32,6 +35,52 @@ class UserController extends Controller
         $roles = $this->allRoles;
 
         return view('admin.users.index', compact('users', 'roles'));
+    }
+
+    /**
+     * GET /admin/users/create
+     */
+    public function create()
+    {
+        $roles = $this->allRoles;
+
+        return view('admin.users.create', compact('roles'));
+    }
+
+    /**
+     * POST /admin/users
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name'     => 'required|string|max:100',
+            'email'    => 'required|email|max:150|unique:users,email',
+            'password' => ['required', 'confirmed', Password::min(8)],
+            'roles'    => 'required|array|min:1',
+            'roles.*'  => Rule::in($this->allRoles),
+        ], [
+            'email.unique'   => 'Email ini sudah dipakai user lain.',
+            'roles.required' => 'Pilih minimal satu role.',
+        ]);
+
+        $user = User::create([
+            'name'              => $validated['name'],
+            'email'             => $validated['email'],
+            'password'          => Hash::make($validated['password']),
+            'email_verified_at' => now(), // dibuat langsung oleh admin, tidak perlu verifikasi email
+        ]);
+
+        $roleNames = collect($validated['roles'])->map(fn ($name) => Role::firstOrCreate(['name' => $name])->name);
+        $user->syncRoles($roleNames->all());
+
+        AuditLogService::record(
+            action: 'created',
+            description: "Menambahkan user baru \"{$user->name}\" ({$user->email}) dengan role: ".$roleNames->implode(', ').'.',
+            subject: $user,
+        );
+
+        return redirect()->route('admin.users.index')
+            ->with('status', "User \"{$user->name}\" berhasil ditambahkan.");
     }
 
     /**
@@ -99,5 +148,61 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')
             ->with('status', "Role \"{$role}\" berhasil ditambahkan ke {$users->count()} user.");
+    }
+
+    /**
+     * POST /admin/users/{user}/block
+     */
+    public function block(Request $request, User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'Tidak bisa memblokir akun kamu sendiri.');
+        }
+
+        if ($user->hasRole('owner') && User::role('owner')->where('is_blocked', false)->count() <= 1) {
+            return back()->with('error', 'Tidak bisa memblokir owner terakhir yang masih aktif.');
+        }
+
+        $validated = $request->validate([
+            'blocked_reason' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $user->update([
+            'is_blocked'     => true,
+            'blocked_at'     => now(),
+            'blocked_reason' => $validated['blocked_reason'] ?? null,
+        ]);
+
+        DB::table('sessions')->where('user_id', $user->id)->delete();
+
+        AuditLogService::record(
+            action: 'updated',
+            description: "Memblokir user \"{$user->name}\" ({$user->email})".($validated['blocked_reason'] ? '. Alasan: '.$validated['blocked_reason'] : '.'),
+            subject: $user,
+            changes: ['is_blocked' => ['old' => false, 'new' => true]],
+        );
+
+        return back()->with('status', "User \"{$user->name}\" berhasil diblokir.");
+    }
+
+    /**
+     * POST /admin/users/{user}/unblock
+     */
+    public function unblock(User $user)
+    {
+        $user->update([
+            'is_blocked'     => false,
+            'blocked_at'     => null,
+            'blocked_reason' => null,
+        ]);
+
+        AuditLogService::record(
+            action: 'updated',
+            description: "Membuka blokir user \"{$user->name}\" ({$user->email}).",
+            subject: $user,
+            changes: ['is_blocked' => ['old' => true, 'new' => false]],
+        );
+
+        return back()->with('status', "User \"{$user->name}\" berhasil dibuka blokirnya.");
     }
 }

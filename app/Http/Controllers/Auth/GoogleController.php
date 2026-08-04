@@ -52,6 +52,11 @@ class GoogleController extends Controller
             }
         }
 
+        if ($user->is_blocked) {
+            return redirect()->route('login')
+                ->with('error', 'Akun ini telah diblokir. Hubungi admin kalau kamu merasa ini keliru.');
+        }
+
         Auth::login($user, true);
         request()->session()->regenerate();
 

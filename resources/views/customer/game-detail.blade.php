@@ -20,7 +20,7 @@
             <div class="col-lg-7">
 
                 <div id="tutorial-box" class="tutorial-box mb-4 d-none">
-                    <div class="tutorial-box-icon">💡</div>
+                    <div class="tutorial-box-icon"><i class="bi bi-lightbulb-fill"></i></div>
                     <div>
                         <div class="fw-bold mb-1">Cara menemukan ID Game kamu</div>
                         <p class="mb-0 small" id="tutorial-text"></p>
@@ -81,7 +81,7 @@
                         </div>
 
                         <div class="sla-note mb-3">
-                            ⚡ Proses otomatis, estimasi <strong>1-3 menit</strong> setelah pembayaran berhasil.
+                            <i class="bi bi-lightning-charge-fill"></i> Proses otomatis, estimasi <strong>1-3 menit</strong> setelah pembayaran berhasil.
                         </div>
 
                         <div id="form-alert" class="alert d-none" role="alert"></div>

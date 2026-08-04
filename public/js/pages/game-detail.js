@@ -166,7 +166,7 @@
             applyRepeatOrder();
         } catch (err) {
             console.error(err);
-            gameHeader.innerHTML = `<div class="catalog-state"><div class="catalog-state-emoji">⚠️</div><p class="fw-bold mb-0">Gagal memuat data game</p></div>`;
+            gameHeader.innerHTML = `<div class="catalog-state"><div class="catalog-state-emoji"><i class="bi bi-exclamation-triangle-fill"></i></div><p class="fw-bold mb-0">Gagal memuat data game</p></div>`;
         }
     }
 

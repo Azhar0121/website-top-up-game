@@ -57,7 +57,7 @@
             </div>
         @empty
             <div class="catalog-state">
-                <div class="catalog-state-emoji">🛒</div>
+                <div class="catalog-state-emoji"><i class="bi bi-receipt"></i></div>
                 <p class="fw-bold mb-1">Belum ada transaksi</p>
                 <p class="mb-3 small">Yuk top up game favoritmu sekarang.</p>
                 <a href="{{ url('/') }}" class="btn app-btn-cta px-4">Mulai Top Up</a>

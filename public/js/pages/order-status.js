@@ -11,14 +11,14 @@
     const REPEATABLE_STATUSES = ['success', 'failed', 'expired', 'cancelled'];
 
     const STATUS_LABEL = {
-        pending_payment: { text: 'Menunggu Pembayaran', color: '#6B6482', emoji: '⏳' },
-        paid: { text: 'Pembayaran Diterima', color: '#34E4B8', emoji: '💰' },
-        processing: { text: 'Sedang Diproses', color: '#FFC93C', emoji: '⚙️' },
-        success: { text: 'Berhasil', color: '#34E4B8', emoji: '✅' },
-        failed: { text: 'Gagal', color: '#FF5D8F', emoji: '❌' },
-        expired: { text: 'Kedaluwarsa', color: '#6B6482', emoji: '⌛' },
-        refunded: { text: 'Dana Dikembalikan', color: '#6B6482', emoji: '↩️' },
-        cancelled: { text: 'Dibatalkan', color: '#6B6482', emoji: '🚫' },
+        pending_payment: { text: 'Menunggu Pembayaran', color: '#6B6482', icon: 'bi-hourglass-split' },
+        paid: { text: 'Pembayaran Diterima', color: '#34E4B8', icon: 'bi-cash-coin' },
+        processing: { text: 'Sedang Diproses', color: '#FFC93C', icon: 'bi-gear-fill' },
+        success: { text: 'Berhasil', color: '#34E4B8', icon: 'bi-check-circle-fill' },
+        failed: { text: 'Gagal', color: '#FF5D8F', icon: 'bi-x-circle-fill' },
+        expired: { text: 'Kedaluwarsa', color: '#6B6482', icon: 'bi-clock-history' },
+        refunded: { text: 'Dana Dikembalikan', color: '#6B6482', icon: 'bi-arrow-counterclockwise' },
+        cancelled: { text: 'Dibatalkan', color: '#6B6482', icon: 'bi-slash-circle' },
     };
 
     const HAPPY_PATH = ['pending_payment', 'paid', 'processing', 'success'];
@@ -52,7 +52,7 @@
     function renderNotFound() {
         resultEl.innerHTML = `
             <div class="catalog-state">
-                <div class="catalog-state-emoji">🔍</div>
+                <div class="catalog-state-emoji"><i class="bi bi-search"></i></div>
                 <p class="fw-bold mb-1">Transaksi tidak ditemukan</p>
                 <p class="mb-0 small">Periksa kembali nomor invoice kamu.</p>
             </div>`;
@@ -66,21 +66,21 @@
             const isLastStep = i === STEP_TITLES.length - 1;
 
             if (isLastStep && negativeFinal[status]) {
-                return { title: negativeFinal[status], state: 'failed', icon: '✕' };
+                return { title: negativeFinal[status], state: 'failed', icon: '<i class="bi bi-x-lg"></i>' };
             }
             if (isLastStep && status === 'success') {
-                return { title: 'Berhasil', state: 'done', icon: '✓' };
+                return { title: 'Berhasil', state: 'done', icon: '<i class="bi bi-check-lg"></i>' };
             }
 
             if (happyIndex !== -1) {
-                if (i < happyIndex) return { title, state: 'done', icon: '✓' };
+                if (i < happyIndex) return { title, state: 'done', icon: '<i class="bi bi-check-lg"></i>' };
                 if (i === happyIndex) return { title, state: 'current', icon: String(i + 1) };
                 return { title, state: 'upcoming', icon: String(i + 1) };
             }
 
-            if (i === 0) return { title, state: 'done', icon: '✓' };
+            if (i === 0) return { title, state: 'done', icon: '<i class="bi bi-check-lg"></i>' };
             if (status === 'expired') return { title, state: 'upcoming', icon: String(i + 1) };
-            return { title, state: 'done', icon: '✓' };
+            return { title, state: 'done', icon: '<i class="bi bi-check-lg"></i>' };
         });
     }
 
@@ -111,7 +111,7 @@
     }
 
     function renderOrder(order) {
-        const statusInfo = STATUS_LABEL[order.status] || { text: order.status, color: '#6B6482', emoji: 'ℹ️' };
+        const statusInfo = STATUS_LABEL[order.status] || { text: order.status, color: '#6B6482', icon: 'bi-info-circle-fill' };
         const repeatUrl = REPEATABLE_STATUSES.includes(order.status) ? repeatOrderUrl(order) : null;
 
         const timelineHtml = (order.logs || [])
@@ -136,7 +136,7 @@
                         <div class="fw-bold">${escapeHtml(order.invoice_number)}</div>
                     </div>
                     <span class="status-badge" style="background:${statusInfo.color}22; color:${statusInfo.color};">
-                        ${statusInfo.emoji} ${statusInfo.text}
+                        <i class="bi ${statusInfo.icon}"></i> ${statusInfo.text}
                     </span>
                 </div>
 
@@ -204,7 +204,7 @@
             }
         } catch (err) {
             console.error(err);
-            resultEl.innerHTML = `<div class="catalog-state"><div class="catalog-state-emoji">⚠️</div><p class="fw-bold mb-0">Gagal memuat transaksi</p></div>`;
+            resultEl.innerHTML = `<div class="catalog-state"><div class="catalog-state-emoji"><i class="bi bi-exclamation-triangle-fill"></i></div><p class="fw-bold mb-0">Gagal memuat transaksi</p></div>`;
         }
     }
 
