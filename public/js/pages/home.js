@@ -7,6 +7,8 @@
     const searchForm = document.getElementById('hero-search-form');
     const searchInput = document.getElementById('hero-search-input');
     const filterChips = document.querySelectorAll('.filter-chip');
+    const curatedSection = document.getElementById('curated-popular-section');
+    const curatedScroll = document.getElementById('curated-popular-scroll');
 
     let state = {
         search: '',
@@ -78,44 +80,81 @@
         return div.innerHTML;
     }
 
+    function gameCardHtml(game, index) {
+        const badge = game.is_popular
+            ? '<span class="game-card-badge">Populer</span>'
+            : (game.is_favorite ? '<span class="game-card-badge">Favorit</span>' : '');
+
+        const initial = game.name.charAt(0).toUpperCase();
+        const fallbackClass = `fallback-${index % 3}`;
+
+        const thumb = game.logo_image_url
+            ? `<img src="${escapeHtml(game.logo_image_url)}" alt="${escapeHtml(game.name)}" loading="lazy">`
+            : initial;
+
+        return `
+            <a href="/game/${encodeURIComponent(game.slug)}" class="game-card">
+                <div class="game-card-thumb ${game.logo_image_url ? '' : fallbackClass}">
+                    ${badge}
+                    ${thumb}
+                </div>
+                <div class="game-card-body">
+                    <div class="game-card-title">${escapeHtml(game.name)}</div>
+                </div>
+            </a>`;
+    }
+
     function renderGames(games) {
         if (!games.length) {
             renderEmpty();
             return;
         }
 
-        const html = games.map((game, index) => {
-            const badge = game.is_popular
-                ? '<span class="game-card-badge">Populer</span>'
-                : (game.is_favorite ? '<span class="game-card-badge">Favorit</span>' : '');
-
-            const initial = game.name.charAt(0).toUpperCase();
-            const fallbackClass = `fallback-${index % 3}`;
-
-            const thumb = game.logo_image_url
-                ? `<img src="${escapeHtml(game.logo_image_url)}" alt="${escapeHtml(game.name)}" loading="lazy">`
-                : initial;
-
-            return `
+        const html = games.map((game, index) => `
                 <div class="col-6 col-md-4 col-lg-2">
-                    <a href="/game/${encodeURIComponent(game.slug)}" class="game-card">
-                        <div class="game-card-thumb ${game.logo_image_url ? '' : fallbackClass}">
-                            ${badge}
-                            ${thumb}
-                        </div>
-                        <div class="game-card-body">
-                            <div class="game-card-title">${escapeHtml(game.name)}</div>
-                        </div>
-                    </a>
-                </div>`;
-        }).join('');
+                    ${gameCardHtml(game, index)}
+                </div>`).join('');
 
         grid.innerHTML = html;
+    }
+
+    async function loadCuratedPopular() {
+        if (!curatedSection || !curatedScroll) return;
+
+        try {
+            const response = await fetch(`${API_BASE}/games?popular=1`, {
+                headers: { Accept: 'application/json' },
+            });
+
+            if (!response.ok) throw new Error('Request gagal: ' + response.status);
+
+            const result = await response.json();
+            const games = result.data || [];
+
+            if (!games.length) {
+                curatedSection.classList.add('d-none');
+                return;
+            }
+
+            curatedScroll.innerHTML = games.map((game, index) => gameCardHtml(game, index)).join('');
+        } catch (err) {
+            console.error('Gagal memuat game populer:', err);
+            curatedSection.classList.add('d-none');
+        }
+    }
+
+    function toggleCuratedSection() {
+        if (!curatedSection) return;
+        // Strip "Lagi Populer" cuma relevan di tampilan default (belum search/filter),
+        // supaya tidak berasa redundan waktu user sudah lagi nyari/filter sendiri.
+        const isDefaultView = !state.search && state.filter === 'all';
+        curatedSection.classList.toggle('d-none', !isDefaultView);
     }
 
     async function loadGames() {
         renderSkeleton();
         updateHeading();
+        toggleCuratedSection();
 
         try {
             const query = buildQuery();
@@ -157,4 +196,5 @@
     });
 
     loadGames();
+    loadCuratedPopular();
 })();

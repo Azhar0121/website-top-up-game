@@ -3,20 +3,19 @@
 @section('title', 'Beranda')
 @section('meta_description', 'Top up Diamond Mobile Legends, Roblox, Minecraft, dan game favoritmu lainnya. Proses otomatis 1-3 menit, aman, dan banyak pilihan pembayaran.')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/home-theme.css') }}">
+@endpush
+
 @section('content')
 
     <section class="hero">
         <div class="hero-glow-orb orb-pink"></div>
         <div class="hero-glow-orb orb-mint"></div>
-        <svg class="hero-doodle d1" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2L12 16.4l-6.3 4.6 2.3-7.2-6-4.6h7.6L12 2z" fill="#FFC93C"/></svg>
-        <svg class="hero-doodle d2" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#FF5D8F" stroke-width="2.5" stroke-dasharray="4 4"/></svg>
-        <svg class="hero-doodle d3" viewBox="0 0 24 24" fill="none"><path d="M4 12c2-6 14-6 16 0" stroke="#34E4B8" stroke-width="2.5" stroke-linecap="round"/></svg>
-        <svg class="hero-doodle d4" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2L12 16.4l-6.3 4.6 2.3-7.2-6-4.6h7.6L12 2z" fill="#FF5D8F"/></svg>
 
         <div class="container position-relative">
             <div class="row justify-content-center text-center">
                 <div class="col-lg-9">
-                    {{-- <span class="hero-eyebrow">Proses Otomatis 1-3 Menit</span> --}}
                     <h1 class="hero-title mb-3">
                         Top Up Diamond & Item Game,
                         <span class="hero-underline">
@@ -31,8 +30,15 @@
 
                     <form id="hero-search-form" class="hero-search d-flex align-items-center mx-auto" role="search">
                         <input type="text" id="hero-search-input" placeholder="Cari nama game, misal: Mobile Legends..." aria-label="Cari game">
-                        <button type="submit">Cari</button>
+                        <button type="submit"><i class="bi bi-search"></i> Cari</button>
                     </form>
+
+                    <div class="hero-trust-strip">
+                        <div class="hero-trust-item"><i class="bi bi-lightning-charge-fill"></i> Proses Otomatis</div>
+                        <div class="hero-trust-item"><i class="bi bi-shield-lock-fill"></i> Pembayaran Aman</div>
+                        <div class="hero-trust-item"><i class="bi bi-controller"></i> Ratusan Game Populer</div>
+                        <div class="hero-trust-item"><i class="bi bi-headset"></i> CS Siap Bantu</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -71,6 +77,63 @@
         </div>
     @endif
 
+    {{-- Kenapa Pilih TopUp Kilat - trust section ala landing page startup --}}
+    <section class="features-section">
+        <div class="container">
+            <div class="row g-3">
+                <div class="col-6 col-lg-3">
+                    <div class="feature-card">
+                        <span class="feature-card-icon"><i class="bi bi-lightning-charge-fill"></i></span>
+                        <div>
+                            <div class="feature-card-title">Proses Otomatis</div>
+                            <p class="feature-card-text">Rata-rata selesai 1-3 menit setelah pembayaran dikonfirmasi.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="feature-card">
+                        <span class="feature-card-icon"><i class="bi bi-shield-check"></i></span>
+                        <div>
+                            <div class="feature-card-title">Transaksi Aman</div>
+                            <p class="feature-card-text">Pembayaran diproses lewat payment gateway resmi dan terenkripsi.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="feature-card">
+                        <span class="feature-card-icon"><i class="bi bi-tags-fill"></i></span>
+                        <div>
+                            <div class="feature-card-title">Harga Bersaing</div>
+                            <p class="feature-card-text">Ratusan pilihan nominal dengan harga transparan, tanpa biaya siluman.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="feature-card">
+                        <span class="feature-card-icon"><i class="bi bi-headset"></i></span>
+                        <div>
+                            <div class="feature-card-title">CS Siap Bantu</div>
+                            <p class="feature-card-text">Ada kendala? Tim support siap bantu lacak transaksi kamu.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- Curated: Lagi Populer minggu ini (scroll horizontal, ala Itemku) --}}
+    <section class="curated-section" id="curated-popular-section">
+        <div class="container">
+            <div class="section-header-row">
+                <div>
+                    <div class="section-eyebrow-label"><i class="bi bi-fire"></i> Trending</div>
+                    <h2 class="section-heading mb-0">Lagi Populer Minggu Ini</h2>
+                </div>
+            </div>
+            <div id="curated-popular-scroll" class="curated-scroll"></div>
+        </div>
+    </section>
+
     <div class="container filter-chips">
         <div class="d-flex gap-2 flex-wrap justify-content-center">
             <button type="button" class="filter-chip active" data-filter="all">Semua Game</button>
@@ -81,7 +144,6 @@
 
     <section class="catalog-section">
         <div class="container">
-            {{-- <div class="section-eyebrow">Katalog Game</div> --}}
             <h2 class="section-heading" id="catalog-heading">Semua Game</h2>
 
             <div id="game-grid" class="row g-3" aria-live="polite">
