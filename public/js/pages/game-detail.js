@@ -58,14 +58,33 @@
 
     function renderHeader(game) {
         const initial = game.name.charAt(0).toUpperCase();
-        gameHeader.innerHTML = `
-            <div class="d-flex align-items-center gap-3">
-                <div class="game-header-icon">${initial}</div>
-                <div>
-                    <h1 class="game-header-title mb-1">${escapeHtml(game.name)}</h1>
-                    <p class="game-header-sub mb-0">Top up otomatis &middot; Proses 1-3 menit</p>
-                </div>
-            </div>`;
+
+        if (game.banner_image_url) {
+            const logoHtml = game.logo_image_url
+                ? `<img src="${escapeHtml(game.logo_image_url)}" alt="${escapeHtml(game.name)}">`
+                : initial;
+
+            gameHeader.innerHTML = `
+                <div class="game-hero-banner">
+                    <img src="${escapeHtml(game.banner_image_url)}" alt="${escapeHtml(game.name)}" loading="lazy">
+                    <div class="game-hero-banner-info">
+                        <div class="game-hero-banner-logo d-flex align-items-center justify-content-center">${logoHtml}</div>
+                        <div>
+                            <h1 class="game-hero-banner-title">${escapeHtml(game.name)}</h1>
+                            <p class="game-hero-banner-sub">Top up otomatis &middot; Proses 1-3 menit</p>
+                        </div>
+                    </div>
+                </div>`;
+        } else {
+            gameHeader.innerHTML = `
+                <div class="d-flex align-items-center gap-3">
+                    <div class="game-header-icon">${initial}</div>
+                    <div>
+                        <h1 class="game-header-title mb-1">${escapeHtml(game.name)}</h1>
+                        <p class="game-header-sub mb-0">Top up otomatis &middot; Proses 1-3 menit</p>
+                    </div>
+                </div>`;
+        }
 
         if (game.tutorial_text) {
             tutorialText.textContent = game.tutorial_text;

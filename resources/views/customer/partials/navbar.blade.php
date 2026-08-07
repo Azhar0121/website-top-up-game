@@ -2,7 +2,6 @@
     <div class="container">
 
         <a class="navbar-brand app-brand" href="{{ url('/') }}">
-            <span class="app-brand-icon"><i class="bi bi-lightning-charge-fill"></i></span>
             TopUp<span class="app-brand-accent">Kilat</span>
         </a>
 

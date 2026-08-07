@@ -1,16 +1,8 @@
 <footer class="app-footer">
     <div class="container py-5">
-
-        <div class="footer-trust-row">
-            <div class="footer-trust-item"><i class="bi bi-shield-check"></i> Transaksi Aman</div>
-            <div class="footer-trust-item"><i class="bi bi-lightning-charge"></i> Proses Otomatis 1-3 Menit</div>
-            <div class="footer-trust-item"><i class="bi bi-headset"></i> Customer Care Siap Bantu</div>
-        </div>
-
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="app-brand mb-2">
-                    <span class="app-brand-icon"><i class="bi bi-lightning-charge-fill"></i></span>
                     TopUp<span class="app-brand-accent">Kilat</span>
                 </div>
                 <p class="text-light-muted small mb-0">

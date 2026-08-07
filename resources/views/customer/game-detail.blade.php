@@ -2,6 +2,10 @@
 
 @section('title', $gameName ?? 'Detail Game')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/dark-theme.css') }}">
+@endpush
+
 @section('content')
 
     <div class="container py-4" id="game-detail-app" data-slug="{{ $slug }}">
