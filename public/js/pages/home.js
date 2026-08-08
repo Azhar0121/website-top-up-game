@@ -4,14 +4,20 @@
     const API_BASE = window.APP_CONFIG.apiBase;
     const grid = document.getElementById('game-grid');
     const heading = document.getElementById('catalog-heading');
-    const searchForm = document.getElementById('hero-search-form');
-    const searchInput = document.getElementById('hero-search-input');
+    const searchForm = document.getElementById('navbar-search-form');
+    const searchInput = document.getElementById('navbar-search-input');
     const filterChips = document.querySelectorAll('.filter-chip');
     const curatedSection = document.getElementById('curated-popular-section');
     const curatedScroll = document.getElementById('curated-popular-scroll');
 
+    // Kalau user nyari dari halaman lain (search bar ada di navbar & tampil di semua
+    // halaman), form itu submit biasa (full page reload) ke "/?search=...". Begitu
+    // sampai di Beranda, query string ini dibaca supaya hasil pencarian langsung
+    // ke-filter tanpa user perlu ngetik ulang.
+    const initialSearch = new URLSearchParams(window.location.search).get('search') || '';
+
     let state = {
-        search: '',
+        search: initialSearch,
         filter: 'all',
     };
 
@@ -172,19 +178,25 @@
         }
     }
 
-    searchForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        state.search = searchInput.value.trim();
-        loadGames();
-    });
-
-    searchInput.addEventListener('input', function () {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(function () {
+    // Dibungkus null-check dengan sengaja: search bar ini di-share lewat navbar
+    // (dirender di semua halaman), jadi kalau suatu saat markup navbar berubah lagi
+    // dan elemennya sempat hilang, script ini tidak ikut "putus" total di tengah -
+    // load katalog game & populer di bawah tetap jalan.
+    if (searchForm && searchInput) {
+        searchForm.addEventListener('submit', function (e) {
+            e.preventDefault();
             state.search = searchInput.value.trim();
             loadGames();
-        }, 400);
-    });
+        });
+
+        searchInput.addEventListener('input', function () {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function () {
+                state.search = searchInput.value.trim();
+                loadGames();
+            }, 400);
+        });
+    }
 
     filterChips.forEach((chip) => {
         chip.addEventListener('click', function () {

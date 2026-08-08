@@ -21,6 +21,12 @@
 
         <div class="collapse navbar-collapse" id="mainNav">
 
+            <form action="{{ url('/') }}" method="GET" class="app-navbar-search me-lg-3 my-2 my-lg-0" role="search" id="navbar-search-form">
+                <i class="bi bi-search"></i>
+                <input type="text" name="search" id="navbar-search-input" value="{{ request('search') }}"
+                       placeholder="Cari game, misal: Mobile Legends..." aria-label="Cari game">
+            </form>
+
             <ul class="navbar-nav ms-auto align-items-lg-center">
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">

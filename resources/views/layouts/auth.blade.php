@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@yield('title', 'TopUp Kilat') - Top Up Game Cepat & Aman</title>
+    <meta name="description" content="@yield('meta_description', 'Top up Diamond, Voucher, dan item game favoritmu. Proses otomatis 1-3 menit.')">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ asset('css/app-custom.css') }}">
+
+    {{-- Halaman auth dibikin dark theme juga (konsisten sama Beranda/Detail
+         Game/Akun Saya) - cukup load dark-theme.css di sini, variabel warnanya
+         otomatis "menimpa" semua var(--color-xxx) yang dipakai auth-theme.css. --}}
+    <link rel="stylesheet" href="{{ asset('css/dark-theme.css') }}">
+
+    @stack('styles')
+</head>
+<body>
+
+    <main>
+        @yield('content')
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.APP_CONFIG = {
+            apiBase: '{{ url('/api/v1') }}',
+            user: @auth {{ Illuminate\Support\Js::from(['name' => auth()->user()->name, 'email' => auth()->user()->email]) }} @else null @endauth,
+            recaptchaSiteKey: @json(config('services.recaptcha.site_key')),
+        };
+    </script>
+    @if (config('services.recaptcha.site_key'))
+        <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+    @endif
+    @stack('scripts')
+</body>
+</html>

@@ -1,4 +1,4 @@
-@extends('layouts.customer')
+@extends('layouts.auth')
 
 @section('title', 'Masuk')
 
@@ -13,7 +13,6 @@
         <div class="auth-brand-panel">
             <div class="auth-brand-panel-content">
                 <div class="auth-brand-logo">
-                    <span class="app-brand-icon"><i class="bi bi-lightning-charge-fill"></i></span>
                     TopUp<span class="app-brand-accent">Kilat</span>
                 </div>
 
@@ -39,10 +38,6 @@
 
         <div class="auth-form-panel">
             <div class="auth-form-card">
-
-                <div class="auth-form-mobile-brand">
-                    <span class="app-brand-icon"><i class="bi bi-lightning-charge-fill"></i></span>
-                </div>
 
                 <h1 class="auth-form-title">Masuk ke Akun Kamu</h1>
                 <p class="auth-form-subtitle">Belum punya akun? <a href="{{ route('register') }}" class="fw-semibold">Daftar di sini</a></p>

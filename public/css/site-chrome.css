@@ -16,18 +16,6 @@
     color: var(--color-text-dark);
 }
 
-.app-brand-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    background: var(--color-text-dark);
-    color: var(--color-accent-yellow);
-    font-size: 1.05rem;
-    flex-shrink: 0;
-}
 
 .app-brand-accent { color: var(--color-accent-pink); }
 
@@ -79,20 +67,38 @@
 
 .app-navbar .navbar-toggler { border: none; box-shadow: none; padding: .3rem; }
 
+.app-navbar-search {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    background: var(--color-surface-alt);
+    border: 1.5px solid #EFEBFA;
+    border-radius: 999px;
+    padding: .45rem 1rem;
+    max-width: 340px;
+    flex: 1 1 260px;
+}
+.app-navbar-search i { color: var(--color-text-muted); font-size: .95rem; }
+.app-navbar-search input {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--color-text-dark);
+    font-size: .88rem;
+    width: 100%;
+}
+.app-navbar-search input::placeholder { color: var(--color-text-muted); }
+
 @media (max-width: 991px) {
     .app-navbar .nav-link { padding: .6rem .5rem; }
     .app-navbar .navbar-nav { gap: .15rem; }
+    .app-navbar-search { max-width: 100%; }
 }
 
 /* ---------- FOOTER ---------- */
 .app-footer {
     background: var(--color-bg-dark);
     color: var(--color-text-light);
-}
-
-.app-footer .app-brand-icon {
-    background: var(--color-accent-yellow);
-    color: var(--color-bg-dark);
 }
 
 .app-footer .app-brand { color: #fff; }
