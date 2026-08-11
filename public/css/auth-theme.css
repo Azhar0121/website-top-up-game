@@ -18,6 +18,7 @@
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
+    border-right: 1px solid var(--color-border-strong);
 }
 
 @media (min-width: 992px) {

@@ -1,17 +1,5 @@
-/* ====================================================================
-   HOME THEME — Beranda (redesign, referensi Itemku)
-   File terpisah, cuma di-load di halaman Beranda lewat @push('styles').
-   Beberapa aturan di sini SENGAJA menimpa .hero/.game-card/.filter-chip
-   dari app-custom.css (dimuat lebih dulu) - bukan duplikat, tapi refinement
-   supaya kesannya lebih rapi/profesional/startup, bukan playful-chaos.
-   ==================================================================== */
-
-/* ---------- HERO: lebih tenang, tidak terlalu ramai ---------- */
+/* ---------- HERO ---------- */
 .hero { padding: 4rem 0 3.5rem; }
-
-/* Doodle SVG lama (bintang/lingkaran putus-putus melayang) dimatikan -
-   kesannya kurang profesional untuk target "startup modern". Glow orb
-   tetap dipakai karena lebih soft/modern. */
 .hero-doodle { display: none; }
 
 .hero-trust-strip {
@@ -113,7 +101,7 @@
 .game-card:hover { transform: translateY(-4px) !important; }
 
 /* ---------- FILTER CHIPS: sedikit dirapikan ---------- */
-.filter-chips { margin-top: -1.75rem; }
+.filter-chips { margin-top: 2.5rem; margin-bottom: .5rem; }
 .filter-chip { display: inline-flex; align-items: center; gap: .4rem; }
 
 @media (max-width: 767px) {

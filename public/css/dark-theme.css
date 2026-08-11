@@ -1,14 +1,14 @@
 :root {
-    --color-surface-alt: #130A28;
-    --color-surface: #201441;
-    --color-surface-raised: #2A1B54;
+    --color-surface-alt: #0E0820;
+    --color-surface: #241A4D;
+    --color-surface-raised: #2E2160;
 
     --color-text-dark: #F3EEFC;
     --color-text-muted: #A99DCB;
     --color-text-light: #F5F0FF;
 
-    --color-border-soft: rgba(255, 255, 255, 0.12);
-    --color-border-strong: rgba(255, 255, 255, 0.2);
+    --color-border-soft: rgba(255, 255, 255, 0.16);
+    --color-border-strong: rgba(255, 255, 255, 0.3);
 }
 
 body { background: var(--color-surface-alt); }
@@ -22,8 +22,12 @@ body { background: var(--color-surface-alt); }
     box-shadow: none;
 }
 .app-navbar .nav-link { color: var(--color-text-muted); }
-.app-navbar .nav-link:hover,
-.app-navbar .nav-link.active { color: var(--color-text-light); background: rgba(255,255,255,.06); }
+.app-navbar .nav-link:hover { color: var(--color-text-light); background: rgba(255,255,255,.06); }
+.app-navbar .nav-link.active {
+    color: var(--color-accent-yellow);
+    background: rgba(255, 201, 60, .12);
+    font-weight: 700;
+}
 
 .app-nav-track-btn {
     background: var(--color-accent-pink);
@@ -32,15 +36,17 @@ body { background: var(--color-surface-alt); }
 }
 .app-nav-track-btn:hover { filter: brightness(1.08); color: #fff; }
 
+.app-nav-track-btn.is-current { box-shadow: 0 0 0 2px rgba(255,255,255,.7), 0 4px 16px rgba(255,93,143,.4); }
+
 .app-navbar .navbar-toggler-icon { filter: invert(1) brightness(1.6); }
 
-/* Search bar di navbar (pindahan dari hero) */
+/* Search bar di navbar */
 .app-navbar-search {
     display: flex;
     align-items: center;
     gap: .5rem;
-    background: rgba(255,255,255,.06);
-    border: 1px solid var(--color-border-soft);
+    background: rgba(255,255,255,.1);
+    border: 1px solid var(--color-border-strong);
     border-radius: 999px;
     padding: .45rem 1rem;
     max-width: 340px;
@@ -63,13 +69,15 @@ body { background: var(--color-surface-alt); }
 .app-btn-outline {
     border: 2px solid var(--color-border-strong);
     color: var(--color-text-light);
-    background: transparent;
+    background: rgba(255,255,255,.05);
 }
-.app-btn-outline:hover { background: rgba(255,255,255,.08); color: #fff; border-color: var(--color-border-strong); }
+.app-btn-outline:hover { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.45); }
+
+.app-nav-track-btn { box-shadow: 0 4px 16px rgba(255, 93, 143, .35); }
 
 .app-footer { background: #0D0620; border-top: 1px solid var(--color-border-soft); }
 
-/* ---------- HERO: glow orb (sebelumnya markup ada, CSS-nya belum pernah dibuat) ---------- */
+/* ---------- HERO: glow orb ---------- */
 .hero { position: relative; overflow: hidden; }
 .hero-glow-orb {
     position: absolute;
@@ -91,12 +99,12 @@ body { background: var(--color-surface-alt); }
 
 /* ---------- FILTER CHIPS ---------- */
 .filter-chip {
-    background: rgba(255,255,255,.06);
+    background: rgba(255,255,255,.08);
     color: var(--color-text-light);
-    border: 2px solid transparent;
+    border: 2px solid var(--color-border-soft);
     box-shadow: none;
 }
-.filter-chip:hover { background: rgba(255,255,255,.1); }
+.filter-chip:hover { background: rgba(255,255,255,.14); }
 .filter-chip.active {
     background: var(--color-accent-yellow);
     color: #1B1035;
@@ -105,11 +113,11 @@ body { background: var(--color-surface-alt); }
 
 /* ---------- GAME CARD ---------- */
 .game-card {
-    box-shadow: none;
+    box-shadow: 0 3px 14px rgba(0,0,0,.35);
     border: 1px solid var(--color-border-soft);
 }
 .game-card:hover {
-    box-shadow: 0 14px 32px rgba(0,0,0,.4);
+    box-shadow: 0 14px 32px rgba(0,0,0,.5);
     border-color: var(--color-accent-yellow);
 }
 .game-card-body { background: var(--color-surface); }
@@ -128,22 +136,25 @@ body { background: var(--color-surface-alt); }
 .catalog-state { color: var(--color-text-muted); }
 
 /* ---------- BANNER CAROUSEL ---------- */
-.banner-slide-img { box-shadow: 0 10px 34px rgba(0,0,0,.45); }
+.banner-slide-img {
+    box-shadow: 0 10px 34px rgba(0,0,0,.5);
+    border: 1px solid var(--color-border-soft);
+}
 
 /* ==================== DETAIL GAME ==================== */
-
-/* Header lama (fallback kalau game tidak punya banner) */
 .game-header-title { color: var(--color-text-light); }
 .game-header-sub { color: var(--color-text-muted); }
 
-/* Hero poster ala Stitch - dipakai game-detail.js kalau game punya banner_image_url */
 .game-hero-banner {
     position: relative;
     border-radius: var(--radius-lg);
     overflow: hidden;
-    aspect-ratio: 16 / 9;
+    height: 190px;
     margin-bottom: 1.5rem;
     border: 1px solid var(--color-border-soft);
+}
+@media (min-width: 768px) {
+    .game-hero-banner { height: 300px; }
 }
 .game-hero-banner img {
     width: 100%; height: 100%; object-fit: cover; display: block;
@@ -156,14 +167,14 @@ body { background: var(--color-surface-alt); }
 .game-hero-banner-info {
     position: absolute;
     left: 0; right: 0; bottom: 0;
-    padding: 1.25rem 1.4rem;
+    padding: 1rem 1.25rem;
     display: flex;
     align-items: center;
     gap: 1rem;
     z-index: 1;
 }
 .game-hero-banner-logo {
-    width: 64px; height: 64px;
+    width: 65px; height: 65px;
     border-radius: var(--radius-md);
     overflow: hidden;
     flex-shrink: 0;
@@ -171,8 +182,8 @@ body { background: var(--color-surface-alt); }
     background: var(--color-surface);
 }
 .game-hero-banner-logo img { width: 100%; height: 100%; object-fit: cover; }
-.game-hero-banner-title { font-weight: 800; font-size: 1.6rem; color: #fff; margin-bottom: .1rem; }
-.game-hero-banner-sub { color: rgba(255,255,255,.75); font-size: .88rem; margin: 0; }
+.game-hero-banner-title { font-weight: 800; font-size: 1.35rem; color: #fff; margin-bottom: .1rem; }
+.game-hero-banner-sub { color: rgba(255,255,255,.75); font-size: .85rem; margin: 0; }
 
 .tutorial-box {
     background: rgba(255, 201, 60, .08);
@@ -230,4 +241,50 @@ body { background: var(--color-surface-alt); }
 
 @media (prefers-reduced-motion: reduce) {
     .hero-glow-orb { display: none; }
+}
+
+/* ==================== HALAMAN STATIS (FAQ / T&C / Privasi / Kontak) ==================== */
+.static-page-card { box-shadow: 0 10px 34px rgba(0,0,0,.35); border: 1px solid var(--color-border-soft); }
+
+.faq-accordion .accordion-item {
+    background: var(--color-surface);
+    border-color: var(--color-border-soft);
+}
+.faq-accordion .accordion-button {
+    background: var(--color-surface);
+    color: var(--color-text-light);
+}
+.faq-accordion .accordion-button::after {
+    filter: invert(1) brightness(1.8);
+}
+.faq-accordion .accordion-button:not(.collapsed) {
+    background: rgba(255, 201, 60, .14);
+    color: var(--color-text-light);
+}
+.faq-accordion .accordion-body { background: var(--color-surface); color: var(--color-text-muted); }
+
+/* ==================== CEK TRANSAKSI ==================== */
+.lookup-form-light { border-color: var(--color-border-soft) !important; }
+
+.status-tracker::before { background: var(--color-border-soft); }
+.status-tracker-dot { border-color: var(--color-border-soft); }
+.status-tracker-step.is-upcoming .status-tracker-dot {
+    background: var(--color-surface);
+    border-color: var(--color-border-soft);
+}
+
+.timeline { box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+.timeline-item:not(:last-child)::before { background: var(--color-border-soft); }
+
+.alert-success, .alert-danger { border: none; }
+
+/* ==================== HALAMAN HUBUNGI KAMI ==================== */
+.contact-channel-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
 }

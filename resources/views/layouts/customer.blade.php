@@ -16,6 +16,8 @@
     <link rel="stylesheet" href="{{ asset('css/site-chrome.css') }}">
 
     @stack('styles')
+
+    <link rel="stylesheet" href="{{ asset('css/dark-theme.css') }}">
 </head>
 <body>
 

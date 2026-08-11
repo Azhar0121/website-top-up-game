@@ -35,6 +35,7 @@ Route::get('/cek-transaksi', function () {
 Route::get('/faq', [PageController::class, 'faq'])->name('faq');
 Route::get('/syarat-ketentuan', [PageController::class, 'terms'])->name('terms');
 Route::get('/kebijakan-privasi', [PageController::class, 'privacy'])->name('privacy');
+Route::get('/hubungi-kami', [PageController::class, 'contact'])->name('contact');
 
 // ==================== AUTH (customer & staff, satu form yang sama) ====================
 Route::get('/login', [LoginController::class, 'show'])->name('login');

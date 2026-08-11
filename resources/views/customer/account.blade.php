@@ -2,10 +2,6 @@
 
 @section('title', 'Akun Saya')
 
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('css/dark-theme.css') }}">
-@endpush
-
 @php
     $statusLabel = [
         'pending_payment' => ['Menunggu Pembayaran', '#A99DCB'],

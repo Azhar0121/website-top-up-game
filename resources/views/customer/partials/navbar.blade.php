@@ -5,7 +5,7 @@
             TopUp<span class="app-brand-accent">Kilat</span>
         </a>
 
-        <a href="{{ url('/cek-transaksi') }}" class="app-nav-track-btn d-lg-none ms-auto me-2">
+        <a href="{{ url('/cek-transaksi') }}" class="app-nav-track-btn d-lg-none ms-auto me-2 {{ request()->is('cek-transaksi') || request()->is('order*') ? 'is-current' : '' }}">
             <i class="bi bi-receipt"></i>
         </a>
 
@@ -41,7 +41,7 @@
                 </li>
 
                 <li class="nav-item d-none d-lg-block ms-lg-1">
-                    <a href="{{ url('/cek-transaksi') }}" class="app-nav-track-btn">
+                    <a href="{{ url('/cek-transaksi') }}" class="app-nav-track-btn {{ request()->is('cek-transaksi') || request()->is('order*') ? 'is-current' : '' }}">
                         <i class="bi bi-receipt"></i> Cek Transaksi
                     </a>
                 </li>

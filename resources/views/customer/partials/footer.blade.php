@@ -15,7 +15,7 @@
                 <ul class="list-unstyled small">
                     <li><a href="{{ url('/cek-transaksi') }}"><i class="bi bi-receipt me-1"></i> Cek Transaksi</a></li>
                     <li><a href="{{ route('faq') }}"><i class="bi bi-question-circle me-1"></i> FAQ</a></li>
-                    <li><a href="#"><i class="bi bi-headset me-1"></i> Hubungi Kami</a></li>
+                    <li><a href="{{ route('contact') }}"><i class="bi bi-headset me-1"></i> Hubungi Kami</a></li>
                 </ul>
             </div>
             <div class="col-6 col-md-2">

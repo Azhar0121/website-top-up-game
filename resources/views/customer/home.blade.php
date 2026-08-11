@@ -5,7 +5,6 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/home-theme.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark-theme.css') }}">
 @endpush
 
 @section('content')

@@ -8,16 +8,16 @@
 
 @section('content')
 
-    <div class="container py-4" id="game-detail-app" data-slug="{{ $slug }}">
+    <div class="container pb-4" id="game-detail-app" data-slug="{{ $slug }}">
+
+        <div id="game-header" class="game-header mb-3">
+            <div class="skeleton-line" style="width: 220px; height: 26px;"></div>
+            <div class="skeleton-line mt-2" style="width: 320px; height: 14px;"></div>
+        </div>
 
         <nav class="mb-3">
             <a href="{{ url('/') }}" class="text-decoration-none small fw-semibold text-muted">&larr; Kembali ke Semua Game</a>
         </nav>
-
-        <div id="game-header" class="game-header mb-4">
-            <div class="skeleton-line" style="width: 220px; height: 26px;"></div>
-            <div class="skeleton-line mt-2" style="width: 320px; height: 14px;"></div>
-        </div>
 
         <div class="row g-4">
             {{-- ===================== KOLOM KIRI: Info & Produk ===================== --}}
