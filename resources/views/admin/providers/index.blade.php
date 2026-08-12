@@ -65,6 +65,6 @@
 
     <div class="alert alert-primary border-0 mt-3" style="background: rgba(91,33,182,.08); color: var(--admin-primary);">
         <i class="bi bi-info-circle me-1"></i>
-        Angka prioritas lebih kecil = dicoba lebih dulu saat ada order masuk. Kalau provider prioritas #1 gagal/timeout, sistem otomatis lempar ke provider aktif prioritas berikutnya (auto-failover, PRD 4.1).
+        Angka prioritas lebih kecil = saat ada order masuk. Kalau provider prioritas #1 gagal/timeout, sistem otomatis lempar ke provider aktif prioritas berikutnya (auto-failover).
     </div>
 @endsection

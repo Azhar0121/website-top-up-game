@@ -63,8 +63,6 @@ class PageController extends Controller
     {
         return view('customer.contact', [
             'whatsappNumber' => config('whatsapp.support_number'),
-            'supportEmail'   => config('support.email'),
-            'instagram'      => config('support.instagram'),
         ]);
     }
 }

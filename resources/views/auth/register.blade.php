@@ -99,6 +99,12 @@
                     Dengan mendaftar, kamu setuju dengan
                     <a href="{{ route('terms') }}" class="fw-semibold">Syarat &amp; Ketentuan</a> kami.
                 </p>
+
+                <p class="recaptcha-disclosure">
+                    Situs ini dilindungi reCAPTCHA dan berlaku
+                    <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Kebijakan Privasi</a> serta
+                    <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Persyaratan Layanan</a> Google.
+                </p>
             </div>
         </div>
 

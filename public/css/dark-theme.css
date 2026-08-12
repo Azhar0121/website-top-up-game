@@ -191,6 +191,69 @@ body { background: var(--color-surface-alt); }
     color: var(--color-text-light);
 }
 
+/* ---------- LANGKAH BERNOMOR DI HALAMAN CHECKOUT ---------- */
+.checkout-step { margin-bottom: 1.75rem; }
+.checkout-step:last-of-type { margin-bottom: 0; }
+
+.step-heading {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--color-text-light);
+    margin-bottom: 1rem;
+}
+.step-number {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--color-accent-yellow);
+    color: #1B1035;
+    font-size: .82rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.checkout-panel .checkout-step:not(:last-of-type) {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border-soft);
+}
+
+.qty-stepper {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255,255,255,.05);
+    border: 2px solid var(--color-border-soft);
+    border-radius: 999px;
+    overflow: hidden;
+}
+.qty-stepper button {
+    width: 42px;
+    height: 42px;
+    border: none;
+    background: transparent;
+    color: var(--color-text-light);
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s ease;
+}
+.qty-stepper button:hover:not(:disabled) { background: rgba(255,255,255,.1); }
+.qty-stepper button:disabled { opacity: .3; cursor: not-allowed; }
+.qty-stepper input {
+    width: 54px;
+    text-align: center;
+    border: none;
+    background: transparent;
+    color: var(--color-text-light);
+    font-weight: 800;
+    font-size: 1.05rem;
+}
+
 .product-card {
     background: var(--color-surface);
     border: 2px solid var(--color-border-soft);

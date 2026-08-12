@@ -17,6 +17,8 @@
     --radius-md: 14px;
 }
 
+.grecaptcha-badge { visibility: hidden !important; }
+
 body {
     font-family: var(--font-body);
     color: var(--color-text-dark);
@@ -465,15 +467,19 @@ a:focus-visible, button:focus-visible, input:focus-visible {
     padding: 2rem;
     box-shadow: 0 4px 20px rgba(27, 16, 53, .06);
 }
-.static-page-content { line-height: 1.85; }
+.static-page-content { line-height: 1.9; font-size: 1rem; }
 .static-page-content h3 {
     font-family: var(--font-display);
+    font-weight: 700;
     font-size: 1.15rem;
-    margin-top: 1.5rem;
-    margin-bottom: .5rem;
+    margin-top: 2.25rem;
+    margin-bottom: 1rem;
+    padding-bottom: .65rem;
+    border-bottom: 2px solid var(--color-accent-yellow);
+    color: var(--color-text-dark);
 }
 .static-page-content h3:first-child { margin-top: 0; }
-.static-page-content p { margin-bottom: 1rem; }
+.static-page-content p { margin-bottom: 1.15rem; color: var(--color-text-muted); }
 
 /* FAQ ACCORDION */
 .faq-accordion .accordion-item {

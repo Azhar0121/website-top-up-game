@@ -36,6 +36,8 @@ Route::get('/faq', [PageController::class, 'faq'])->name('faq');
 Route::get('/syarat-ketentuan', [PageController::class, 'terms'])->name('terms');
 Route::get('/kebijakan-privasi', [PageController::class, 'privacy'])->name('privacy');
 Route::get('/hubungi-kami', [PageController::class, 'contact'])->name('contact');
+Route::get('/hubungi-kami/keluhan', [\App\Http\Controllers\ComplaintController::class, 'create'])->name('complaints.create');
+Route::post('/hubungi-kami/keluhan', [\App\Http\Controllers\ComplaintController::class, 'store'])->middleware('throttle:5,1')->name('complaints.store');
 
 // ==================== AUTH (customer & staff, satu form yang sama) ====================
 Route::get('/login', [LoginController::class, 'show'])->name('login');
@@ -151,6 +153,13 @@ Route::prefix('admin')->name('admin.')->middleware('restrict_admin_ip')->group(f
             Route::put('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
             Route::post('/users/{user}/block', [\App\Http\Controllers\Admin\UserController::class, 'block'])->name('users.block');
             Route::post('/users/{user}/unblock', [\App\Http\Controllers\Admin\UserController::class, 'unblock'])->name('users.unblock');
+        });
+
+        Route::middleware('permission:complaints.manage')->group(function () {
+            // Keluhan / Tiket CS dari form /hubungi-kami/keluhan
+            Route::get('/complaints', [\App\Http\Controllers\Admin\ComplaintController::class, 'index'])->name('complaints.index');
+            Route::get('/complaints/{complaint}', [\App\Http\Controllers\Admin\ComplaintController::class, 'show'])->name('complaints.show');
+            Route::put('/complaints/{complaint}', [\App\Http\Controllers\Admin\ComplaintController::class, 'updateStatus'])->name('complaints.update-status');
         });
 
         Route::middleware('permission:audit-logs.view')->group(function () {

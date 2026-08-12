@@ -153,6 +153,18 @@
     margin-top: 1.5rem;
 }
 
+.recaptcha-disclosure {
+    text-align: center;
+    font-size: .74rem;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+    opacity: .7;
+    margin-top: .75rem;
+    margin-bottom: 0;
+}
+.recaptcha-disclosure a { color: inherit; text-decoration: underline; }
+
+
 /* ---------- Verifikasi 2FA: kartu tunggal terpusat ---------- */
 .auth-shell--centered {
     grid-template-columns: 1fr;

@@ -5,10 +5,20 @@
                 <div class="app-brand mb-2">
                     TopUp<span class="app-brand-accent">Kilat</span>
                 </div>
-                <p class="text-light-muted small mb-0">
-                    Top up Diamond, Voucher, dan item game favoritmu.
-                    Proses otomatis, aman, dan biasanya cuma 1-3 menit.
-                </p>
+                <div class="footer-social mb-3">
+                    <a href="{{ config('support.facebook') }}" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Facebook">
+                        <i class="bi bi-facebook"></i>
+                    </a>
+                    <a href="https://instagram.com/{{ ltrim(config('support.instagram'), '@') }}" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Instagram">
+                        <i class="bi bi-instagram"></i>
+                    </a>
+                    <a href="https://tiktok.com/{{ '@' . ltrim(config('support.tiktok'), '@') }}" target="_blank" rel="noopener" class="footer-social-icon" aria-label="TikTok">
+                        <i class="bi bi-tiktok"></i>
+                    </a>
+                </div>
+                <a href="mailto:{{ config('support.email') }}" class="footer-email-link">
+                    <i class="bi bi-envelope-fill me-1"></i> {{ config('support.email') }}
+                </a>
             </div>
             <div class="col-6 col-md-2">
                 <h6 class="footer-heading">Bantuan</h6>
@@ -38,7 +48,7 @@
         </div>
         <hr class="footer-divider">
         <p class="text-light-muted small mb-0 text-center">
-            &copy; {{ date('Y') }} TopUpKilat
+            Copyright &copy; {{ date('Y') }} TopUpKilat All Rights Reserved
         </p>
     </div>
 </footer>

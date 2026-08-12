@@ -98,6 +98,12 @@
                 <p class="auth-form-footer">
                     Login staff/admin pakai form yang sama - kamu akan diarahkan otomatis ke dashboard.
                 </p>
+
+                <p class="recaptcha-disclosure">
+                    Situs ini dilindungi reCAPTCHA dan berlaku
+                    <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Kebijakan Privasi</a> serta
+                    <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Persyaratan Layanan</a> Google.
+                </p>
             </div>
         </div>
 

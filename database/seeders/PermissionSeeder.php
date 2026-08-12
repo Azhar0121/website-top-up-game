@@ -23,13 +23,14 @@ class PermissionSeeder extends Seeder
         'payment-gateways.manage',
         'users.manage',
         'audit-logs.view',
+        'complaints.manage',       // CS: kelola form keluhan yang masuk dari /hubungi-kami
     ];
 
     private const ROLE_PERMISSIONS = [
         'owner'     => '*',
         'admin'     => '*',
         'finance'   => ['dashboard.view', 'reports.view', 'orders.view', 'orders.force-success'],
-        'cs'        => ['dashboard.view', 'orders.view', 'orders.retry'],
+        'cs'        => ['dashboard.view', 'orders.view', 'orders.retry', 'complaints.manage'],
         'marketing' => ['dashboard.view', 'vouchers.manage', 'flash-sales.manage', 'cms.manage'],
         'developer' => ['dashboard.view', 'providers.manage', 'api-logs.view', 'payment-gateways.manage'],
     ];

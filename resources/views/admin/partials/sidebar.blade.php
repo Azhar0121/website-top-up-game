@@ -108,6 +108,13 @@
             </a>
         @endcan
 
+        @can('complaints.manage')
+            <div class="admin-nav-section">Support</div>
+            <a href="{{ route('admin.complaints.index') }}" class="admin-nav-link {{ $isActive('admin.complaints.*') }}">
+                <i class="bi bi-chat-left-text-fill"></i> Customer Complaints
+            </a>
+        @endcan
+
         @can('audit-logs.view')
             <div class="admin-nav-section">System &amp; Security</div>
             <a href="{{ route('admin.audit-logs.index') }}" class="admin-nav-link {{ $isActive('admin.audit-logs.*') }}">

@@ -17,7 +17,17 @@
     const formAlert = document.getElementById('form-alert');
     const orderSummary = document.getElementById('order-summary');
     const summaryProductName = document.getElementById('summary-product-name');
+    const summaryProductQty = document.getElementById('summary-product-qty');
     const summaryProductPrice = document.getElementById('summary-product-price');
+
+    const qtyInput = document.getElementById('qty-input');
+    const qtyMinusBtn = document.getElementById('qty-minus');
+    const qtyPlusBtn = document.getElementById('qty-plus');
+    const qtyNote = document.getElementById('qty-note');
+
+    const DEFAULT_MAX_QTY = 5; // dipakai kalau produk tidak punya batas stok eksplisit
+    let quantity = 1;
+    let maxQty = DEFAULT_MAX_QTY;
 
     /**
      * Ambil token reCAPTCHA v3 untuk action tertentu
@@ -45,6 +55,51 @@
     function formatRupiah(value) {
         return 'Rp' + Number(value).toLocaleString('id-ID');
     }
+
+    /**
+     * Refresh tampilan tombol +/- dan angka quantity sesuai batas maxQty saat ini.
+     */
+    function updateQtyUi() {
+        qtyInput.value = quantity;
+        qtyMinusBtn.disabled = quantity <= 1;
+        qtyPlusBtn.disabled = quantity >= maxQty;
+    }
+
+    /**
+     * Hitung ulang harga total (harga satuan x quantity) dan refresh ringkasan
+     * order + teks tombol Bayar. Dipanggil setiap kali produk ATAU quantity berubah.
+     */
+    function updatePriceSummary() {
+        if (!selectedProduct) return;
+
+        const hasFlashSale = selectedProduct.flash_sale_price !== null && selectedProduct.flash_sale_price !== undefined;
+        const unitPrice = hasFlashSale ? selectedProduct.flash_sale_price : selectedProduct.base_price;
+        const total = unitPrice * quantity;
+
+        summaryProductName.textContent = selectedProduct.name;
+        summaryProductQty.textContent = quantity;
+        summaryProductPrice.textContent = formatRupiah(total);
+        orderSummary.classList.remove('d-none');
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = `Bayar ${formatRupiah(total)}`;
+    }
+
+    qtyMinusBtn.addEventListener('click', function () {
+        if (quantity > 1) {
+            quantity -= 1;
+            updateQtyUi();
+            updatePriceSummary();
+        }
+    });
+
+    qtyPlusBtn.addEventListener('click', function () {
+        if (quantity < maxQty) {
+            quantity += 1;
+            updateQtyUi();
+            updatePriceSummary();
+        }
+    });
 
     function showAlert(message, type = 'danger') {
         formAlert.className = `alert alert-${type}`;
@@ -153,15 +208,19 @@
                 card.classList.add('selected');
 
                 selectedProduct = JSON.parse(card.dataset.product);
-                const hasFlashSale = selectedProduct.flash_sale_price !== null && selectedProduct.flash_sale_price !== undefined;
-                const effectivePrice = hasFlashSale ? selectedProduct.flash_sale_price : selectedProduct.base_price;
 
-                summaryProductName.textContent = selectedProduct.name;
-                summaryProductPrice.textContent = formatRupiah(effectivePrice);
-                orderSummary.classList.remove('d-none');
+                // Reset ke 1 tiap ganti produk - batas stok beda-beda per produk.
+                quantity = 1;
+                maxQty = (selectedProduct.stock !== null && selectedProduct.stock !== undefined)
+                    ? Math.max(1, Math.min(selectedProduct.stock, 20)) // dibatasi 20 juga biar tidak kebablasan meski stok gede
+                    : DEFAULT_MAX_QTY;
 
-                submitBtn.disabled = false;
-                submitBtn.textContent = `Bayar ${formatRupiah(effectivePrice)}`;
+                qtyNote.textContent = (selectedProduct.stock !== null && selectedProduct.stock !== undefined)
+                    ? `Stok tersedia: ${selectedProduct.stock}. Maks. ${maxQty} per transaksi.`
+                    : `Maks. ${maxQty} per transaksi.`;
+
+                updateQtyUi();
+                updatePriceSummary();
             });
         });
     }
@@ -249,6 +308,7 @@
 
         const payload = {
             product_id: selectedProduct.id,
+            quantity: quantity,
             target_game_id: targetGameId,
             target_server_id: document.getElementById('target_server_id').value.trim() || null,
             customer_email: document.getElementById('customer_email').value.trim() || null,
@@ -310,14 +370,13 @@
         isSubmitting = false;
         submitBtn.disabled = false;
         if (selectedProduct) {
-            const hasFlashSale = selectedProduct.flash_sale_price !== null && selectedProduct.flash_sale_price !== undefined;
-            const effectivePrice = hasFlashSale ? selectedProduct.flash_sale_price : selectedProduct.base_price;
-            submitBtn.textContent = `Bayar ${formatRupiah(effectivePrice)}`;
+            updatePriceSummary();
         } else {
             submitBtn.textContent = 'Pilih nominal dulu';
         }
     }
 
+    qtyInput.value = quantity;
     form.addEventListener('submit', handleSubmit);
 
     loadGameDetail();
