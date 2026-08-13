@@ -4,7 +4,6 @@
 
 <aside class="admin-sidebar" id="adminSidebar">
     <div class="admin-sidebar-brand">
-        <i class="bi bi-lightning-charge-fill"></i>
         TopUp Kilat <span class="badge-enterprise">ADMIN</span>
     </div>
 

@@ -5,11 +5,13 @@
 @section('page-subtitle', 'Ringkasan operasional TopUp Kilat hari ini')
 
 @section('content')
-    <div class="row g-3 mb-1">
+
+    <div class="admin-section-label">Ringkasan Hari Ini</div>
+    <div class="row g-3 mb-4">
         <div class="col-md-3 col-6">
-            <div class="admin-card admin-card-accent admin-card-body h-100" style="border-top-color: var(--admin-primary);">
+            <div class="admin-card admin-card-body h-100">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="admin-icon-badge" style="background: linear-gradient(135deg, #5B21B6, #431693);">
+                    <div class="admin-icon-badge">
                         <i class="bi bi-cash-coin"></i>
                     </div>
                     <div>
@@ -20,7 +22,7 @@
             </div>
         </div>
         <div class="col-md-3 col-6">
-            <div class="admin-card admin-card-accent accent-mint admin-card-body h-100">
+            <div class="admin-card admin-card-body h-100">
                 <div class="d-flex align-items-center gap-3">
                     <div class="admin-icon-badge accent-mint">
                         <i class="bi bi-graph-up-arrow"></i>
@@ -33,7 +35,7 @@
             </div>
         </div>
         <div class="col-md-3 col-6">
-            <div class="admin-card admin-card-accent accent-yellow admin-card-body h-100">
+            <div class="admin-card admin-card-body h-100">
                 <div class="d-flex align-items-center gap-3">
                     <div class="admin-icon-badge accent-yellow">
                         <i class="bi bi-hourglass-split"></i>
@@ -46,7 +48,7 @@
             </div>
         </div>
         <div class="col-md-3 col-6">
-            <div class="admin-card admin-card-accent accent-pink admin-card-body h-100">
+            <div class="admin-card admin-card-body h-100">
                 <div class="d-flex align-items-center gap-3">
                     <div class="admin-icon-badge accent-pink">
                         <i class="bi bi-check2-circle"></i>
@@ -62,7 +64,8 @@
         </div>
     </div>
 
-    <div class="row g-3 mt-1">
+    <div class="admin-section-label">Tren &amp; Performa</div>
+    <div class="row g-3 mb-4">
         <div class="col-lg-8">
             <div class="admin-card h-100">
                 <div class="admin-card-header">
@@ -103,65 +106,54 @@
         </div>
     </div>
 
-    <div class="row g-3 mt-1">
-        <div class="col-md-3">
-            <a href="{{ route('admin.orders.index') }}" class="text-decoration-none">
-                <div class="admin-card admin-card-accent admin-card-body h-100" style="border-top-color: var(--admin-primary);">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="admin-icon-badge" style="background: linear-gradient(135deg, #5B21B6, #431693);">
-                            <i class="bi bi-receipt"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold text-dark">Orders</div>
-                            <div class="text-muted small">Transaksi, retry, force success</div>
-                        </div>
-                    </div>
+    <div class="admin-section-label">Akses Cepat</div>
+    <div class="row g-3">
+        <div class="col-md-3 col-6">
+            <a href="{{ route('admin.orders.index') }}" class="admin-quick-link">
+                <div class="admin-icon-badge">
+                    <i class="bi bi-receipt"></i>
                 </div>
+                <div>
+                    <div class="fw-bold text-dark">Orders</div>
+                    <div class="text-muted small">Transaksi, retry, force success</div>
+                </div>
+                <i class="bi bi-chevron-right admin-quick-link-arrow"></i>
             </a>
         </div>
-        <div class="col-md-3">
-            <a href="{{ route('admin.games.index') }}" class="text-decoration-none">
-                <div class="admin-card admin-card-accent accent-yellow admin-card-body h-100">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="admin-icon-badge accent-yellow">
-                            <i class="bi bi-controller"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold text-dark">Games</div>
-                            <div class="text-muted small">Kelola daftar game & banner</div>
-                        </div>
-                    </div>
+        <div class="col-md-3 col-6">
+            <a href="{{ route('admin.games.index') }}" class="admin-quick-link">
+                <div class="admin-icon-badge accent-yellow">
+                    <i class="bi bi-controller"></i>
                 </div>
+                <div>
+                    <div class="fw-bold text-dark">Games</div>
+                    <div class="text-muted small">Kelola daftar game &amp; banner</div>
+                </div>
+                <i class="bi bi-chevron-right admin-quick-link-arrow"></i>
             </a>
         </div>
-        <div class="col-md-3">
-            <a href="{{ route('admin.categories.index') }}" class="text-decoration-none">
-                <div class="admin-card admin-card-accent accent-pink admin-card-body h-100">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="admin-icon-badge accent-pink">
-                            <i class="bi bi-tags-fill"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold text-dark">Categories</div>
-                            <div class="text-muted small">Diamond, Battle Pass, Skin, dll</div>
-                        </div>
-                    </div>
+        <div class="col-md-3 col-6">
+            <a href="{{ route('admin.categories.index') }}" class="admin-quick-link">
+                <div class="admin-icon-badge accent-pink">
+                    <i class="bi bi-tags-fill"></i>
                 </div>
+                <div>
+                    <div class="fw-bold text-dark">Categories</div>
+                    <div class="text-muted small">Diamond, Battle Pass, Skin, dll</div>
+                </div>
+                <i class="bi bi-chevron-right admin-quick-link-arrow"></i>
             </a>
         </div>
-        <div class="col-md-3">
-            <a href="{{ route('admin.products.index') }}" class="text-decoration-none">
-                <div class="admin-card admin-card-accent accent-mint admin-card-body h-100">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="admin-icon-badge accent-mint">
-                            <i class="bi bi-box-seam-fill"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold text-dark">Products &amp; SKUs</div>
-                            <div class="text-muted small">Harga, margin, stok</div>
-                        </div>
-                    </div>
+        <div class="col-md-3 col-6">
+            <a href="{{ route('admin.products.index') }}" class="admin-quick-link">
+                <div class="admin-icon-badge accent-mint">
+                    <i class="bi bi-box-seam-fill"></i>
                 </div>
+                <div>
+                    <div class="fw-bold text-dark">Products &amp; SKUs</div>
+                    <div class="text-muted small">Harga, margin, stok</div>
+                </div>
+                <i class="bi bi-chevron-right admin-quick-link-arrow"></i>
             </a>
         </div>
     </div>
@@ -186,11 +178,11 @@
             datasets: [{
                 label: 'Revenue',
                 data: salesTrendData.map(row => row.revenue),
-                borderColor: '#FF5D8F',
-                backgroundColor: 'rgba(255, 93, 143, 0.12)',
+                borderColor: '#6C4FF0',
+                backgroundColor: 'rgba(108, 79, 240, 0.1)',
                 fill: true,
                 tension: 0.35,
-                pointBackgroundColor: '#FF5D8F',
+                pointBackgroundColor: '#6C4FF0',
             }],
         },
         options: {

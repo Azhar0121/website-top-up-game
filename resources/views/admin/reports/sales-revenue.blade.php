@@ -100,7 +100,7 @@
             datasets: [{
                 label: 'Revenue',
                 data: revenueData.map(row => row.revenue),
-                backgroundColor: '#FF5D8F',
+                backgroundColor: '#6C4FF0',
                 borderRadius: 6,
             }],
         },
