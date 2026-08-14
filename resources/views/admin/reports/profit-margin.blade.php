@@ -7,6 +7,7 @@
 @php
     $indexRoute = 'admin.reports.profit-margin';
     $exportRoute = 'admin.reports.profit-margin.export';
+    $granularityLabels = ['hourly' => 'Per Jam (Hari Ini)', 'daily' => 'Harian', 'weekly' => 'Mingguan', 'monthly' => 'Bulanan', 'yearly' => 'Tahunan'];
 @endphp
 
 @section('content')
@@ -38,6 +39,10 @@
     </div>
 
     <div class="admin-card mb-3">
+        <div class="admin-card-header">
+            <div class="admin-page-title mb-0">Tren Profit &amp; Revenue</div>
+            @include('admin.reports.partials.chart-quick-filter')
+        </div>
         <div class="admin-card-body">
             <canvas id="profitChart" height="80"></canvas>
         </div>
@@ -46,7 +51,7 @@
     <div class="admin-card">
         <div class="admin-card-header">
             <div>
-                <div class="admin-page-title mb-0">Rincian Harian</div>
+                <div class="admin-page-title mb-0">Rincian {{ $granularityLabels[$granularity] }}</div>
                 <div class="admin-page-subtitle">{{ $from->translatedFormat('d M Y') }} &mdash; {{ $to->translatedFormat('d M Y') }}</div>
             </div>
             @include('admin.reports.partials.filter-bar')
@@ -57,7 +62,7 @@
                 <table class="table admin-table mb-0">
                     <thead>
                         <tr>
-                            <th>Tanggal</th>
+                            <th>Periode</th>
                             <th>Revenue</th>
                             <th>Cost</th>
                             <th>Profit</th>
@@ -67,7 +72,7 @@
                     <tbody>
                         @forelse ($report['daily'] as $row)
                             <tr>
-                                <td>{{ \Illuminate\Support\Carbon::parse($row['date'])->translatedFormat('d M Y') }}</td>
+                                <td>{{ $row['label'] }}</td>
                                 <td>Rp{{ number_format($row['revenue'], 0, ',', '.') }}</td>
                                 <td>Rp{{ number_format($row['cost'], 0, ',', '.') }}</td>
                                 <td class="fw-semibold text-dark">Rp{{ number_format($row['profit'], 0, ',', '.') }}</td>
@@ -108,23 +113,20 @@
     new Chart(document.getElementById('profitChart'), {
         type: 'line',
         data: {
-            labels: profitData.map(row => {
-                const d = new Date(row.date + 'T00:00:00');
-                return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
-            }),
+            labels: profitData.map(row => row.label),
             datasets: [
                 {
                     label: 'Revenue',
                     data: profitData.map(row => row.revenue),
-                    borderColor: '#5B21B6',
-                    backgroundColor: 'rgba(91,33,182,0.08)',
+                    borderColor: '#6C4FF0',
+                    backgroundColor: 'rgba(108,79,240,0.08)',
                     tension: 0.35,
                 },
                 {
                     label: 'Profit',
                     data: profitData.map(row => row.profit),
-                    borderColor: '#34E4B8',
-                    backgroundColor: 'rgba(52,228,184,0.12)',
+                    borderColor: '#14B8A6',
+                    backgroundColor: 'rgba(20,184,166,0.12)',
                     fill: true,
                     tension: 0.35,
                 },

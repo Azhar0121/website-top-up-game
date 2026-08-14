@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class ReportService
 {
+    public const GRANULARITIES = ['hourly', 'daily', 'weekly', 'monthly', 'yearly'];
+
     public const REVENUE_STATUSES = [
         Order::STATUS_PAID,
         Order::STATUS_PROCESSING,
@@ -55,8 +57,6 @@ class ReportService
             ->with('product:id,name')
             ->first();
 
-        $last7Days = $this->salesRevenue(Carbon::today()->subDays(6), Carbon::today())['daily'];
-
         return [
             'sales_today' => (float) $salesToday,
             'profit_today' => (float) $profitToday,
@@ -64,34 +64,117 @@ class ReportService
             'success_ratio_today' => $successRatio,
             'best_seller_today' => $bestSeller?->product?->name,
             'best_seller_qty' => $bestSeller?->qty_sold,
-            'last_7_days' => $last7Days,
         ];
     }
 
     /**
-     * Laporan Sales & Revenue harian dalam rentang tanggal (inklusif).
+     * Tren sales buat chart Dashboard
      */
-    public function salesRevenue(Carbon $from, Carbon $to): array
+    public function salesTrend(string $granularity = 'daily'): array
     {
-        $rows = Order::selectRaw('DATE(created_at) as date, COUNT(*) as orders_count, SUM(price) as revenue')
+        if ($granularity === 'hourly') {
+            return $this->salesRevenue(Carbon::today(), Carbon::now(), 'hourly')['daily'];
+        }
+
+        $to = Carbon::today();
+
+        $from = match ($granularity) {
+            'weekly' => $to->copy()->subWeeks(7)->startOfWeek(Carbon::MONDAY),
+            'monthly' => $to->copy()->subMonthsNoOverflow(11)->startOfMonth(),
+            'yearly' => $to->copy()->subYears(4)->startOfYear(),
+            default => $to->copy()->subDays(6),
+        };
+
+        return $this->salesRevenue($from, $to, $granularity)['daily'];
+    }
+
+    private function periodKeyExpression(string $granularity): string
+    {
+        return match ($granularity) {
+            'hourly' => "DATE_FORMAT(created_at, '%Y-%m-%d %H:00:00')",
+            'weekly' => 'DATE(DATE_SUB(created_at, INTERVAL WEEKDAY(created_at) DAY))',
+            'monthly' => "DATE_FORMAT(created_at, '%Y-%m-01')",
+            'yearly' => "DATE_FORMAT(created_at, '%Y-01-01')",
+            default => 'DATE(created_at)',
+        };
+    }
+
+    private function periodRowKey(string $period, string $granularity): string
+    {
+        return $granularity === 'hourly'
+            ? Carbon::parse($period)->format('Y-m-d H:00:00')
+            : Carbon::parse($period)->toDateString();
+    }
+
+    /**
+     * Daftar lengkap tanggal-awal-periode dari $from s/d $to
+     */
+    private function periodKeys(Carbon $from, Carbon $to, string $granularity): array
+    {
+        $keys = [];
+        $cursor = match ($granularity) {
+            'hourly' => $from->copy()->startOfHour(),
+            'weekly' => $from->copy()->startOfWeek(Carbon::MONDAY),
+            'monthly' => $from->copy()->startOfMonth(),
+            'yearly' => $from->copy()->startOfYear(),
+            default => $from->copy()->startOfDay(),
+        };
+
+        while ($cursor->lte($to)) {
+            $keys[] = $granularity === 'hourly' ? $cursor->format('Y-m-d H:00:00') : $cursor->toDateString();
+            $cursor = match ($granularity) {
+                'hourly' => $cursor->addHour(),
+                'weekly' => $cursor->addWeek(),
+                'monthly' => $cursor->addMonthNoOverflow(),
+                'yearly' => $cursor->addYear(),
+                default => $cursor->addDay(),
+            };
+        }
+
+        return $keys;
+    }
+
+    /**
+     * Label yang ditampilkan ke user untuk satu periode, sesuai granularitasnya.
+     */
+    private function periodLabel(string $key, string $granularity): string
+    {
+        $date = Carbon::parse($key);
+
+        return match ($granularity) {
+            'hourly' => $date->format('H:00'),
+            'weekly' => 'Minggu '.$date->translatedFormat('d M Y'),
+            'monthly' => $date->translatedFormat('F Y'),
+            'yearly' => $date->format('Y'),
+            default => $date->translatedFormat('d M Y'),
+        };
+    }
+
+    /**
+     * Laporan Sales & Revenue, dikelompokkan sesuai $granularity
+     * (daily/weekly/monthly/yearly).
+     */
+    public function salesRevenue(Carbon $from, Carbon $to, string $granularity = 'daily'): array
+    {
+        $periodExpr = $this->periodKeyExpression($granularity);
+
+        $rows = Order::selectRaw("{$periodExpr} as period, COUNT(*) as orders_count, SUM(price) as revenue")
             ->whereIn('status', self::REVENUE_STATUSES)
             ->whereBetween('created_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
-            ->groupBy('date')
-            ->orderBy('date')
+            ->groupBy('period')
+            ->orderBy('period')
             ->get()
-            ->keyBy('date');
+            ->keyBy(fn ($row) => $this->periodRowKey($row->period, $granularity));
 
         $daily = [];
-        $cursor = $from->copy();
-        while ($cursor->lte($to)) {
-            $key = $cursor->toDateString();
+        foreach ($this->periodKeys($from, $to, $granularity) as $key) {
             $row = $rows->get($key);
             $daily[] = [
                 'date' => $key,
+                'label' => $this->periodLabel($key, $granularity),
                 'orders_count' => $row->orders_count ?? 0,
                 'revenue' => (float) ($row->revenue ?? 0),
             ];
-            $cursor->addDay();
         }
 
         $refundTotal = Order::where('status', Order::STATUS_REFUNDED)
@@ -107,39 +190,40 @@ class ReportService
     }
 
     /**
-     * Laporan Profit/Margin harian - hanya dari order berstatus success.
+     * Laporan Profit/Margin, dikelompokkan sesuai $granularity
+     * (daily/weekly/monthly/yearly) - hanya dari order berstatus success.
      */
-    public function profitMargin(Carbon $from, Carbon $to): array
+    public function profitMargin(Carbon $from, Carbon $to, string $granularity = 'daily'): array
     {
+        $periodExpr = $this->periodKeyExpression($granularity);
+
         $rows = Order::selectRaw(
-            'DATE(created_at) as date, '.
+            "{$periodExpr} as period, ".
             'SUM(price) as revenue, '.
             'SUM(COALESCE(cost_price, 0)) as cost, '.
             'SUM(price - COALESCE(cost_price, 0)) as profit'
         )
             ->where('status', Order::STATUS_SUCCESS)
             ->whereBetween('created_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
-            ->groupBy('date')
-            ->orderBy('date')
+            ->groupBy('period')
+            ->orderBy('period')
             ->get()
-            ->keyBy('date');
+            ->keyBy(fn ($row) => $this->periodRowKey($row->period, $granularity));
 
         $daily = [];
-        $cursor = $from->copy();
-        while ($cursor->lte($to)) {
-            $key = $cursor->toDateString();
+        foreach ($this->periodKeys($from, $to, $granularity) as $key) {
             $row = $rows->get($key);
             $revenue = (float) ($row->revenue ?? 0);
             $cost = (float) ($row->cost ?? 0);
             $profit = (float) ($row->profit ?? 0);
             $daily[] = [
                 'date' => $key,
+                'label' => $this->periodLabel($key, $granularity),
                 'revenue' => $revenue,
                 'cost' => $cost,
                 'profit' => $profit,
                 'margin_percent' => $revenue > 0 ? round(($profit / $revenue) * 100, 1) : null,
             ];
-            $cursor->addDay();
         }
 
         $totalRevenue = array_sum(array_column($daily, 'revenue'));
@@ -211,9 +295,7 @@ class ReportService
     }
 
     /**
-     * Performa tiap produk: jumlah terjual & revenue, diurutkan dari yang
-     * paling laris. Dibatasi ke $limit produk teratas untuk halaman web,
-     * tapi export CSV memakai limit yang lebih besar (lihat controller).
+     * Performa tiap produk: jumlah terjual & revenue, diurutkan dari yang paling laris
      */
     public function productPerformance(Carbon $from, Carbon $to, int $limit = 50): array
     {

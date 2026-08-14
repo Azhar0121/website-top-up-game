@@ -13,8 +13,8 @@ class AdminUserSeeder extends Seeder
             ['email' => 'admin@topupgame.test'],
             [
                 'name' => 'Admin Owner',
-                'password' => bcrypt('password'), // WAJIB diganti sebelum production
-                'role' => 'admin', // kolom string tiering harga (dari migration users, bukan RBAC)
+                'password' => bcrypt('password'),
+                'role' => 'admin',
             ]
         );
 

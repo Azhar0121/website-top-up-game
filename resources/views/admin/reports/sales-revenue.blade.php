@@ -2,11 +2,12 @@
 
 @section('title', 'Sales & Revenue Report')
 @section('page-title', 'Sales & Revenue Report')
-@section('page-subtitle', 'Total transaksi & revenue harian berdasarkan order yang sudah dibayar')
+@section('page-subtitle', 'Total transaksi & revenue berdasarkan order yang sudah dibayar')
 
 @php
     $indexRoute = 'admin.reports.sales-revenue';
     $exportRoute = 'admin.reports.sales-revenue.export';
+    $granularityLabels = ['hourly' => 'Per Jam (Hari Ini)', 'daily' => 'Harian', 'weekly' => 'Mingguan', 'monthly' => 'Bulanan', 'yearly' => 'Tahunan'];
 @endphp
 
 @section('content')
@@ -32,6 +33,10 @@
     </div>
 
     <div class="admin-card mb-3">
+        <div class="admin-card-header">
+            <div class="admin-page-title mb-0">Tren Revenue</div>
+            @include('admin.reports.partials.chart-quick-filter')
+        </div>
         <div class="admin-card-body">
             <canvas id="revenueChart" height="80"></canvas>
         </div>
@@ -40,7 +45,7 @@
     <div class="admin-card">
         <div class="admin-card-header">
             <div>
-                <div class="admin-page-title mb-0">Rincian Harian</div>
+                <div class="admin-page-title mb-0">Rincian {{ $granularityLabels[$granularity] }}</div>
                 <div class="admin-page-subtitle">{{ $from->translatedFormat('d M Y') }} &mdash; {{ $to->translatedFormat('d M Y') }}</div>
             </div>
             @include('admin.reports.partials.filter-bar')
@@ -51,7 +56,7 @@
                 <table class="table admin-table mb-0">
                     <thead>
                         <tr>
-                            <th>Tanggal</th>
+                            <th>Periode</th>
                             <th>Jumlah Order</th>
                             <th>Revenue</th>
                         </tr>
@@ -59,7 +64,7 @@
                     <tbody>
                         @forelse ($report['daily'] as $row)
                             <tr>
-                                <td>{{ \Illuminate\Support\Carbon::parse($row['date'])->translatedFormat('d M Y') }}</td>
+                                <td>{{ $row['label'] }}</td>
                                 <td>{{ $row['orders_count'] }}</td>
                                 <td>Rp{{ number_format($row['revenue'], 0, ',', '.') }}</td>
                             </tr>
@@ -93,10 +98,7 @@
     new Chart(document.getElementById('revenueChart'), {
         type: 'bar',
         data: {
-            labels: revenueData.map(row => {
-                const d = new Date(row.date + 'T00:00:00');
-                return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
-            }),
+            labels: revenueData.map(row => row.label),
             datasets: [{
                 label: 'Revenue',
                 data: revenueData.map(row => row.revenue),

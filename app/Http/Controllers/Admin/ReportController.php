@@ -12,39 +12,43 @@ class ReportController extends Controller
     public function salesRevenue(Request $request, ReportService $reportService)
     {
         [$from, $to] = $this->dateRange($request);
-        $report = $reportService->salesRevenue($from, $to);
+        $granularity = $this->granularity($request);
+        $report = $reportService->salesRevenue($from, $to, $granularity);
 
-        return view('admin.reports.sales-revenue', compact('report', 'from', 'to'));
+        return view('admin.reports.sales-revenue', compact('report', 'from', 'to', 'granularity'));
     }
 
     public function exportSalesRevenue(Request $request, ReportService $reportService)
     {
         [$from, $to] = $this->dateRange($request);
-        $report = $reportService->salesRevenue($from, $to);
+        $granularity = $this->granularity($request);
+        $report = $reportService->salesRevenue($from, $to, $granularity);
 
         return $this->streamCsv("sales-revenue_{$from->toDateString()}_{$to->toDateString()}.csv",
-            ['Tanggal', 'Jumlah Order', 'Revenue (Rp)'],
-            collect($report['daily'])->map(fn ($row) => [$row['date'], $row['orders_count'], $row['revenue']])
+            ['Periode', 'Jumlah Order', 'Revenue (Rp)'],
+            collect($report['daily'])->map(fn ($row) => [$row['label'], $row['orders_count'], $row['revenue']])
         );
     }
 
     public function profitMargin(Request $request, ReportService $reportService)
     {
         [$from, $to] = $this->dateRange($request);
-        $report = $reportService->profitMargin($from, $to);
+        $granularity = $this->granularity($request);
+        $report = $reportService->profitMargin($from, $to, $granularity);
 
-        return view('admin.reports.profit-margin', compact('report', 'from', 'to'));
+        return view('admin.reports.profit-margin', compact('report', 'from', 'to', 'granularity'));
     }
 
     public function exportProfitMargin(Request $request, ReportService $reportService)
     {
         [$from, $to] = $this->dateRange($request);
-        $report = $reportService->profitMargin($from, $to);
+        $granularity = $this->granularity($request);
+        $report = $reportService->profitMargin($from, $to, $granularity);
 
         return $this->streamCsv("profit-margin_{$from->toDateString()}_{$to->toDateString()}.csv",
-            ['Tanggal', 'Revenue (Rp)', 'Cost (Rp)', 'Profit (Rp)', 'Margin (%)'],
+            ['Periode', 'Revenue (Rp)', 'Cost (Rp)', 'Profit (Rp)', 'Margin (%)'],
             collect($report['daily'])->map(fn ($row) => [
-                $row['date'], $row['revenue'], $row['cost'], $row['profit'], $row['margin_percent'] ?? '-',
+                $row['label'], $row['revenue'], $row['cost'], $row['profit'], $row['margin_percent'] ?? '-',
             ])
         );
     }
@@ -114,6 +118,18 @@ class ReportController extends Controller
         }
 
         return [$from, $to];
+    }
+
+    /**
+     * Ambil & validasi granularitas grouping (?granularity=daily|weekly|monthly|yearly).
+     * Default: daily. Nilai tidak dikenal otomatis jatuh ke default, bukan error,
+     * biar tidak gampang 500 cuma gara-gara query string aneh.
+     */
+    private function granularity(Request $request): string
+    {
+        $value = $request->query('granularity');
+
+        return in_array($value, \App\Services\ReportService::GRANULARITIES, true) ? $value : 'daily';
     }
 
     /**
