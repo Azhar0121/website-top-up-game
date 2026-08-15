@@ -62,14 +62,34 @@ class PaymentController extends Controller
         $service = PaymentGatewayServiceFactory::make($gateway);
         $result = $service->createTransaction($order, $request->payment_method);
 
-        $payment = Payment::create([
-            'order_id'            => $order->id,
-            'payment_gateway_id'  => $gateway->id,
-            'method'              => $request->payment_method ?? ($gateway->code === 'midtrans' ? 'SNAP' : 'DEFAULT'),
-            'reference_number'    => $result['reference'],
-            'amount'              => $order->price,
-            'status'              => 'pending',
-        ]);
+        if (empty($result['snap_token']) && empty($result['redirect_url'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat sesi pembayaran. Silakan coba lagi.',
+            ], 502);
+        }
+
+        $paymentData = [
+            'method'           => $request->payment_method ?? ($gateway->code === 'midtrans' ? 'SNAP' : 'DEFAULT'),
+            'reference_number' => $result['reference'],
+            'amount'           => $order->price,
+            'status'           => 'pending',
+        ];
+
+        $payment = Payment::where('order_id', $order->id)
+            ->where('payment_gateway_id', $gateway->id)
+            ->where('status', 'pending')
+            ->latest()
+            ->first();
+
+        if ($payment) {
+            $payment->update($paymentData);
+        } else {
+            $payment = Payment::create($paymentData + [
+                'order_id' => $order->id,
+                'payment_gateway_id' => $gateway->id,
+            ]);
+        }
 
         return response()->json([
             'success' => true,

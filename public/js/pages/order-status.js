@@ -110,6 +110,85 @@
         return `/game/${encodeURIComponent(order.product.game.slug)}?${params.toString()}`;
     }
 
+    function showActionMessage(message, type = 'danger') {
+        const alert = resultEl.querySelector('.order-action-alert');
+        if (!alert) return;
+
+        alert.className = `alert alert-${type} small mt-3 mb-0 order-action-alert`;
+        alert.textContent = message;
+        alert.classList.remove('d-none');
+    }
+
+    async function continuePayment(order) {
+        const payButton = resultEl.querySelector('[data-action="pay-now"]');
+        if (payButton) {
+            payButton.disabled = true;
+            payButton.textContent = 'Membuka pembayaran...';
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/payment/initiate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({ invoice_number: order.invoice_number, gateway_code: 'midtrans' }),
+            });
+            const result = await response.json();
+
+            if (!response.ok || !result.success || !result.data?.snap_token) {
+                throw new Error(result.message || 'Sesi pembayaran tidak dapat dibuat.');
+            }
+            if (!window.snap) {
+                throw new Error('Modul pembayaran belum tersedia. Muat ulang halaman lalu coba lagi.');
+            }
+
+            window.snap.pay(result.data.snap_token, {
+                onSuccess: () => loadOrder(order.invoice_number),
+                onPending: () => loadOrder(order.invoice_number),
+                onError: () => showActionMessage('Pembayaran gagal. Silakan coba kembali.'),
+                onClose: () => showActionMessage('Jendela pembayaran ditutup. Pesanan masih menunggu pembayaran.', 'warning'),
+            });
+        } catch (error) {
+            showActionMessage(error.message || 'Gagal membuka pembayaran.');
+        } finally {
+            if (payButton) {
+                payButton.disabled = false;
+                payButton.innerHTML = '<i class="bi bi-credit-card"></i> Bayar Sekarang';
+            }
+        }
+    }
+
+    async function cancelOrder(order) {
+        if (!window.confirm(`Batalkan pesanan ${order.invoice_number}? Tindakan ini tidak dapat dibatalkan.`)) {
+            return;
+        }
+
+        const cancelButton = resultEl.querySelector('[data-action="cancel-order"]');
+        if (cancelButton) {
+            cancelButton.disabled = true;
+            cancelButton.textContent = 'Membatalkan...';
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/orders/${encodeURIComponent(order.invoice_number)}/cancel`, {
+                method: 'POST',
+                headers: { Accept: 'application/json' },
+            });
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Pesanan tidak dapat dibatalkan.');
+            }
+
+            await loadOrder(order.invoice_number);
+        } catch (error) {
+            showActionMessage(error.message || 'Gagal membatalkan pesanan.');
+            if (cancelButton) {
+                cancelButton.disabled = false;
+                cancelButton.innerHTML = '<i class="bi bi-x-circle"></i> Batalkan Pesanan';
+            }
+        }
+    }
+
     function renderOrder(order) {
         const statusInfo = STATUS_LABEL[order.status] || { text: order.status, color: '#6B6482', icon: 'bi-info-circle-fill' };
         const repeatUrl = REPEATABLE_STATUSES.includes(order.status) ? repeatOrderUrl(order) : null;
@@ -130,7 +209,7 @@
 
         resultEl.innerHTML = `
             <div class="checkout-panel mb-4">
-                <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
                     <div>
                         <div class="text-muted small">No. Invoice</div>
                         <div class="fw-bold">${escapeHtml(order.invoice_number)}</div>
@@ -144,22 +223,33 @@
 
                 <hr>
 
-                <div class="d-flex justify-content-between small mb-2">
-                    <span class="text-muted">Produk</span>
-                    <span class="fw-semibold">${escapeHtml(order.product ? order.product.name : '-')}</span>
-                </div>
-                <div class="d-flex justify-content-between small mb-2">
-                    <span class="text-muted">ID Game Tujuan</span>
-                    <span class="fw-semibold">${escapeHtml(order.target_game_id)}${order.target_server_id ? ' (' + escapeHtml(order.target_server_id) + ')' : ''}</span>
-                </div>
-                <div class="d-flex justify-content-between small">
-                    <span class="text-muted">Total Bayar</span>
-                    <span class="fw-bold">${formatRupiah(order.price)}</span>
+                <div class="order-detail-list">
+                    <div class="order-detail-row">
+                        <span>Produk</span>
+                        <strong>${escapeHtml(order.product ? order.product.name : '-')}</strong>
+                    </div>
+                    <div class="order-detail-row">
+                        <span>Jumlah</span>
+                        <strong>${escapeHtml(order.quantity)} produk</strong>
+                    </div>
+                    <div class="order-detail-row">
+                        <span>ID Game Tujuan</span>
+                        <strong>${escapeHtml(order.target_game_id)}${order.target_server_id ? ' (' + escapeHtml(order.target_server_id) + ')' : ''}</strong>
+                    </div>
+                    <div class="order-detail-row order-detail-total">
+                        <span>Total Bayar</span>
+                        <strong>${formatRupiah(order.price)}</strong>
+                    </div>
                 </div>
 
                 ${order.status === 'pending_payment' ? `
-                    <div class="sla-note mt-3 mb-0">
-                        Belum menyelesaikan pembayaran? <a href="/">Kembali ke halaman utama</a> untuk coba lagi.
+                    <div class="pending-payment-actions mt-3">
+                        <p class="small mb-2">Pesanan ini belum dibayar. Kamu dapat melanjutkan pembayaran atau membatalkan pesanan.</p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn app-btn-cta" data-action="pay-now"><i class="bi bi-credit-card"></i> Bayar Sekarang</button>
+                            <button type="button" class="btn app-btn-danger-outline" data-action="cancel-order"><i class="bi bi-x-circle"></i> Batalkan Pesanan</button>
+                        </div>
+                        <div class="alert d-none order-action-alert"></div>
                     </div>` : ''}
                 ${!FINAL_STATUSES.includes(order.status) ? `
                     <div class="text-center text-muted small mt-3">
@@ -171,11 +261,18 @@
                 ` : ''}
             </div>
 
-            <h2 class="section-heading mb-3" style="font-size:1.1rem;">Riwayat Status</h2>
-            <div class="timeline">
-                ${timelineHtml || '<p class="text-muted small">Belum ada riwayat.</p>'}
-            </div>
+            <section class="order-status-history" aria-labelledby="order-history-title">
+                <h2 id="order-history-title" class="section-heading">Riwayat Status</h2>
+                <div class="timeline order-status-timeline">
+                    ${timelineHtml || '<p class="text-muted small mb-0">Belum ada riwayat.</p>'}
+                </div>
+            </section>
         `;
+
+        if (order.status === 'pending_payment') {
+            resultEl.querySelector('[data-action="pay-now"]')?.addEventListener('click', () => continuePayment(order));
+            resultEl.querySelector('[data-action="cancel-order"]')?.addEventListener('click', () => cancelOrder(order));
+        }
     }
 
     async function loadOrder(invoice) {

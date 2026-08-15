@@ -39,10 +39,13 @@ class MidtransService implements PaymentGatewayInterface
 
     public function createTransaction(Order $order, ?string $paymentMethodCode = null): array
     {
+        $grossAmount = (int) $order->price;
+        $itemName = ($order->product->name ?? 'Top Up Produk') . ($order->quantity > 1 ? " x{$order->quantity}" : '');
+
         $params = [
             'transaction_details' => [
                 'order_id'     => $order->invoice_number,
-                'gross_amount' => (int) $order->price,
+                'gross_amount' => $grossAmount,
             ],
             'customer_details' => [
                 'email' => $order->customer_email,
@@ -50,9 +53,9 @@ class MidtransService implements PaymentGatewayInterface
             ],
             'item_details' => [[
                 'id'       => (string) $order->product_id,
-                'price'    => (int) $order->price,
-                'quantity' => $order->quantity,
-                'name'     => $order->product->name ?? 'Top Up Produk',
+                'price'    => $grossAmount,
+                'quantity' => 1,
+                'name'     => $itemName,
             ]],
             'enabled_payments' => [
                 'gopay', 'qris', 'bca_va', 'bni_va', 'bri_va', 'permata_va', 'other_va',

@@ -2,6 +2,7 @@
     --color-bg-dark: #1B1035;
     --color-bg-dark-2: #2D1B54;
     --color-accent-yellow: #FFC93C;
+    --color-accent-yellow-hover: #F59E0B;
     --color-accent-pink: #FF5D8F;
     --color-accent-mint: #34E4B8;
     --color-surface: #FFFFFF;
@@ -62,6 +63,21 @@ a { text-decoration: none; }
 }
 .app-btn-outline:hover {
     background: var(--color-bg-dark);
+    color: #fff;
+}
+
+.app-btn-danger-outline {
+    border: 1px solid rgba(220, 53, 69, .55);
+    color: #B4233D;
+    background: rgba(220, 53, 69, .06);
+    border-radius: 999px;
+    font-weight: 700;
+    padding: .4rem 1.2rem;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.app-btn-danger-outline:hover:not(:disabled) {
+    background: #DC3545;
+    border-color: #DC3545;
     color: #fff;
 }
 
@@ -139,8 +155,14 @@ a { text-decoration: none; }
     font-weight: 700;
     padding: .65rem 1.6rem;
     white-space: nowrap;
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .15s ease;
 }
-.hero-search button:hover { filter: brightness(0.95); }
+.hero-search button:hover {
+    background: var(--color-accent-yellow-hover);
+    color: var(--color-bg-dark);
+    box-shadow: 0 5px 12px rgba(245, 158, 11, .35);
+    transform: translateY(-1px);
+}
 
 /* FILTER CHIPS */
 .filter-chips {
@@ -516,8 +538,15 @@ a:focus-visible, button:focus-visible, input:focus-visible {
     padding: .8rem;
     border: none;
     font-size: 1rem;
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .15s ease;
 }
-.app-btn-cta:hover:not(:disabled) { filter: brightness(0.96); }
+.app-btn-cta:hover:not(:disabled) {
+    background: var(--color-accent-yellow-hover);
+    border-color: var(--color-accent-yellow-hover);
+    color: var(--color-bg-dark);
+    box-shadow: 0 6px 14px rgba(245, 158, 11, .32);
+    transform: translateY(-1px);
+}
 .app-btn-cta:disabled { background: #E9E5F5; color: var(--color-text-muted); }
 
 /* Status order */

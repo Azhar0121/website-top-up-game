@@ -55,6 +55,13 @@ class VoucherService
         $voucher->increment('used_count');
     }
 
+    public function release(string $code): void
+    {
+        Voucher::where('code', $code)
+            ->where('used_count', '>', 0)
+            ->decrement('used_count');
+    }
+
     protected function invalid(string $message): array
     {
         return ['valid' => false, 'message' => $message, 'discount_amount' => 0, 'voucher' => null];

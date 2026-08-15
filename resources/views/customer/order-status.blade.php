@@ -23,5 +23,9 @@
 @endsection
 
 @push('scripts')
+    @if ($midtransClientKey)
+        <script src="{{ $midtransIsProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
+                data-client-key="{{ $midtransClientKey }}"></script>
+    @endif
     <script src="{{ asset('js/pages/order-status.js') }}"></script>
 @endpush

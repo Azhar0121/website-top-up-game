@@ -176,8 +176,10 @@
     transition: background .15s ease, color .15s ease, transform .15s ease;
 }
 .footer-social-icon:hover {
-    background: var(--color-accent-yellow);
+    background: var(--color-accent-yellow-hover);
+    border-color: var(--color-accent-yellow-hover);
     color: var(--color-bg-dark);
+    box-shadow: 0 5px 12px rgba(245, 158, 11, .35);
     transform: translateY(-2px);
 }
 

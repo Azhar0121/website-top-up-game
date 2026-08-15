@@ -33,8 +33,12 @@ class PageController extends Controller
 
     public function orderStatus(?string $invoice = null)
     {
+        $midtrans = PaymentGateway::where('code', 'midtrans')->where('is_active', true)->first();
+
         return view('customer.order-status', [
             'invoice' => $invoice,
+            'midtransClientKey' => $midtrans ? config('midtrans.client_key', '') : '',
+            'midtransIsProduction' => $midtrans ? (bool) config('midtrans.is_production', false) : false,
         ]);
     }
 

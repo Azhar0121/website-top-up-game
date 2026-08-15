@@ -56,25 +56,6 @@
 
         </div>
 
-        <div class="row justify-content-center mt-4">
-            <div class="col-lg-8">
-                <div class="static-page-card d-flex align-items-center gap-3 flex-wrap flex-md-nowrap">
-                    <div class="contact-channel-icon flex-shrink-0" style="background: rgba(255,255,255,.08); color: var(--color-text-light);">
-                        <i class="bi bi-question-circle-fill"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold mb-1" style="color: var(--color-text-light);">Sebelum menghubungi kami...</h6>
-                        <p class="small mb-2" style="color: var(--color-text-muted);">
-                            Coba cek dulu dua halaman ini, siapa tahu jawabannya sudah ada dan kamu tidak perlu menunggu balasan.
-                        </p>
-                        <div class="d-flex gap-2 flex-wrap">
-                            <a href="{{ route('faq') }}" class="btn btn-sm app-btn-outline">Lihat FAQ</a>
-                            <a href="{{ url('/cek-transaksi') }}" class="btn btn-sm app-btn-outline">Cek Status Transaksi</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
 @endsection

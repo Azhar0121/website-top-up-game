@@ -31,7 +31,6 @@
             <div class="col-6 col-md-2">
                 <h6 class="footer-heading">Perusahaan</h6>
                 <ul class="list-unstyled small">
-                    <li><a href="#">Tentang Kami</a></li>
                     <li><a href="{{ route('terms') }}">Syarat &amp; Ketentuan</a></li>
                     <li><a href="{{ route('privacy') }}">Kebijakan Privasi</a></li>
                 </ul>

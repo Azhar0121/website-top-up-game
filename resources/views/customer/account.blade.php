@@ -52,8 +52,13 @@
                     <span class="fw-bold" style="color: var(--color-text-light); font-size: 1.05rem;">
                         Rp{{ number_format($order->price, 0, ',', '.') }}
                     </span>
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 flex-wrap justify-content-end">
                         <a href="{{ url('/order/'.$order->invoice_number) }}" class="btn btn-sm app-btn-outline">Lihat Detail</a>
+
+                        @if ($order->status === 'pending_payment')
+                            <a href="{{ url('/order/'.$order->invoice_number) }}" class="btn btn-sm app-btn-cta" style="padding: .35rem 1rem;">Bayar Sekarang</a>
+                            <button type="button" class="btn btn-sm app-btn-danger-outline" data-cancel-order="{{ $order->invoice_number }}">Batalkan</button>
+                        @endif
 
                         @if (in_array($order->status, $repeatableStatuses) && $order->product && $order->product->game && $order->product->is_active)
                             <a href="{{ url('/game/'.$order->product->game->slug) }}?repeat_product_id={{ $order->product_id }}&target_game_id={{ urlencode($order->target_game_id ?? '') }}&target_server_id={{ urlencode($order->target_server_id ?? '') }}"
@@ -79,3 +84,36 @@
     </div>
 
 @endsection
+
+@push('scripts')
+    <script>
+        document.querySelectorAll('[data-cancel-order]').forEach((button) => {
+            button.addEventListener('click', async () => {
+                const invoice = button.dataset.cancelOrder;
+                if (!window.confirm(`Batalkan pesanan ${invoice}? Tindakan ini tidak dapat dibatalkan.`)) return;
+
+                const originalText = button.textContent;
+                button.disabled = true;
+                button.textContent = 'Membatalkan...';
+
+                try {
+                    const response = await fetch(`/api/v1/orders/${encodeURIComponent(invoice)}/cancel`, {
+                        method: 'POST',
+                        headers: { Accept: 'application/json' },
+                    });
+                    const result = await response.json();
+
+                    if (!response.ok || !result.success) {
+                        throw new Error(result.message || 'Pesanan tidak dapat dibatalkan.');
+                    }
+
+                    window.location.reload();
+                } catch (error) {
+                    window.alert(error.message || 'Gagal membatalkan pesanan.');
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }
+            });
+        });
+    </script>
+@endpush

@@ -48,9 +48,6 @@ class OrderController extends Controller
 
         $role = Auth::check() ? (Auth::user()->role ?? 'customer') : 'customer';
 
-        // Flash sale diterapkan OTOMATIS (tidak perlu kode voucher) kalau produk ini
-        // sedang punya flash sale yang berjalan - dihitung ulang di server, jangan
-        // pernah percaya harga dari request/client.
         $normalPrice = $product->priceForRole($role);
         $flashSale = $product->activeFlashSale();
         $priceAfterFlashSale = $flashSale ? $product->flashSalePrice($role) : $normalPrice;
@@ -140,5 +137,40 @@ class OrderController extends Controller
             ->firstOrFail();
 
         return response()->json(['success' => true, 'data' => $order]);
+    }
+
+    public function cancel(string $invoice, VoucherService $voucherService)
+    {
+        $cancelled = DB::transaction(function () use ($invoice, $voucherService) {
+            $order = Order::query()
+                ->where('invoice_number', $invoice)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($order->status !== Order::STATUS_PENDING_PAYMENT) {
+                return false;
+            }
+
+            $order->transitionTo(Order::STATUS_CANCELLED, 'Pesanan dibatalkan oleh pelanggan sebelum pembayaran.', 'customer');
+            $order->payment()->where('status', 'pending')->update(['status' => 'failed']);
+
+            if ($order->voucher_code) {
+                $voucherService->release($order->voucher_code);
+            }
+
+            return true;
+        });
+
+        if (! $cancelled) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pesanan ini tidak lagi dapat dibatalkan.',
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pesanan berhasil dibatalkan.',
+        ]);
     }
 }

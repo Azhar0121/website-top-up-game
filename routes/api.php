@@ -22,6 +22,7 @@ Route::prefix('v1')->group(function () {
     // Checkout & cek status order
     Route::post('/checkout', [OrderController::class, 'store'])->middleware('throttle:checkout');
     Route::get('/orders/{invoice}', [OrderController::class, 'show'])->middleware('throttle:order-status');
+    Route::post('/orders/{invoice}/cancel', [OrderController::class, 'cancel'])->middleware('throttle:order-status');
 
     Route::get('/payment/methods', [PaymentController::class, 'paymentMethods']);
 

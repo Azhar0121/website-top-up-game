@@ -72,6 +72,12 @@ body { background: var(--color-surface-alt); }
     background: rgba(255,255,255,.05);
 }
 .app-btn-outline:hover { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.45); }
+.app-btn-danger-outline {
+    color: #FF9AB7;
+    border-color: rgba(255, 93, 143, .55);
+    background: rgba(255, 93, 143, .10);
+}
+.app-btn-danger-outline:hover:not(:disabled) { background: #FF5D8F; border-color: #FF5D8F; color: #fff; }
 
 .app-nav-track-btn { box-shadow: 0 4px 16px rgba(255, 93, 143, .35); }
 
@@ -109,6 +115,11 @@ body { background: var(--color-surface-alt); }
     background: var(--color-accent-yellow);
     color: #1B1035;
     border-color: var(--color-accent-yellow);
+}
+.filter-chip.active:hover {
+    background: var(--color-accent-yellow-hover);
+    border-color: var(--color-accent-yellow-hover);
+    color: #1B1035;
 }
 
 /* ---------- GAME CARD ---------- */
@@ -298,6 +309,11 @@ body { background: var(--color-surface-alt); }
 .pagination .page-item.active .page-link {
     background: var(--color-accent-yellow);
     border-color: var(--color-accent-yellow);
+    color: #1B1035;
+}
+.pagination .page-item.active .page-link:hover {
+    background: var(--color-accent-yellow-hover);
+    border-color: var(--color-accent-yellow-hover);
     color: #1B1035;
 }
 .pagination .page-item.disabled .page-link { background: transparent; color: var(--color-text-muted); }
