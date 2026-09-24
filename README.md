@@ -1,6 +1,6 @@
 # TopUp Kilat
 
-Website top up game (diamond, voucher, dan item digital lainnya) berbasis **Laravel 13**. Pengguna bisa top up otomatis lewat provider resmi, sementara tim internal (owner/admin/finance/CS/marketing/developer) mengelola operasional lewat dashboard admin dengan role & permission terpisah.
+TopUp Kilat adalah platform aplikasi web top up game dan produk digital otomatis berbasis **Laravel 13**. Pengguna dapat melakukan pembelian diamond, voucher, serta item digital game secara instan melalui penyedia provider terintegrasi. Platform ini dilengkapi dengan antarmuka publik bertema gelap yang modern untuk pelanggan, serta dashboard admin interaktif untuk pengelolaan operasional staf internal berdasarkan hak akses role dan permission.
 
 ---
 
@@ -8,234 +8,228 @@ Website top up game (diamond, voucher, dan item digital lainnya) berbasis **Lara
 
 - [Fitur Utama](#fitur-utama)
 - [Tech Stack](#tech-stack)
-- [Struktur Folder Penting](#struktur-folder-penting)
-- [Role & Permission](#role--permission)
-- [Instalasi](#instalasi)
+- [Struktur Folder Utama](#struktur-folder-utama)
+- [Role dan Hak Akses (Role & Permission)](#role-dan-hak-akses-role--permission)
+- [Panduan Instalasi](#panduan-instalasi)
 - [Environment Variables Penting](#environment-variables-penting)
-- [Alur Kerja Order (Ringkas)](#alur-kerja-order-ringkas)
+- [Alur Kerja Transaksi (Order Lifecycle)](#alur-kerja-transaksi-order-lifecycle)
 - [Perintah Artisan Kustom](#perintah-artisan-kustom)
-- [Tema & Styling](#tema--styling)
-- [Kontribusi](#kontribusi)
+- [Skema Tema dan Styling](#skema-tema-dan-styling)
 
 ---
 
 ## Fitur Utama
 
-### Sisi Customer
-- Katalog game & produk (diamond, voucher, dll) dengan pencarian dan filter kategori
-- Halaman detail game + form order (pilih produk, isi ID game, checkout)
-- Integrasi payment gateway: **Midtrans**, **Duitku**, **Tripay** (pluggable lewat `PaymentGatewayServiceFactory`)
-- Integrasi provider top up: **Digiflazz**, **VIP Reseller** (pluggable lewat `ProviderServiceFactory`, ada mock provider untuk development/testing)
-- Cek status transaksi tanpa login
-- Flash sale produk dengan harga coret
-- Login/register (email & Google OAuth), verifikasi 2FA via OTP
-- Notifikasi order sukses (email) & notifikasi WhatsApp (via **Fonnte**)
-- FAQ, Syarat & Ketentuan, Kebijakan Privasi (halaman statis dari database, bisa diedit lewat admin)
-- Halaman Hubungi Kami: chat WhatsApp langsung, atau isi **Form Keluhan** (dengan lampiran gambar opsional) yang masuk ke tim CS
-- reCAPTCHA v3 di login/register (badge disembunyikan, disclosure text ditampilkan sesuai ketentuan Google)
+### Sisi Pelanggan (Customer Facing)
+- **Katalog Game dan Produk**: Pencarian langsung (live search) pada navbar dan hero, filter kategori (Semua Game, Populer, Favorit), serta spanduk promosi dinamis (Banner Carousel).
+- **Halaman Detail Game dan Form Checkout 6 Langkah**:
+  1. *Pilih Nominal*: Pemilihan produk dan nominal top up dengan penanda promo Flash Sale dan harga coret.
+  2. *Masukkan Data Akun*: Pengisian ID Game dan Server ID yang dilengkapi panduan visual per game.
+  3. *Jumlah Pembelian*: Stepper pengatur kuantitas pembelian.
+  4. *Detail Kontak*: Pengisian email untuk invoice dan nomor WhatsApp untuk notifikasi.
+  5. *Voucher Diskon*: Penerapan kode promo (potongan persentase atau nominal tetap).
+  6. *Metode Pembayaran*: Integrasi popup pembayaran Snap yang responsif.
+- **Integrasi Payment Gateway**: Dukungan terintegrasi untuk **Midtrans**, **Duitku**, dan **Tripay** berbasis arsitektur Pluggable Service Factory.
+- **Integrasi Provider Top Up**: Proses pengiriman item otomatis via **Digiflazz** dan **VIP Reseller**, dilengkapi *Mock Provider* untuk lingkungan pengembangan dan pengujian.
+- **Cek Status Transaksi Tanpa Login**: Pencarian status transaksi berdasarkan nomor invoice dengan indikator lini masa (timeline status) dari pembayaran hingga pengiriman item.
+- **Autentikasi Pengguna**: Login dan registrasi akun pelanggan berbasis email maupun **Google OAuth**, verifikasi **2FA OTP via Email**, serta proteksi keamanan **reCAPTCHA v3**.
+- **Notifikasi Multi-Channel**: Notifikasi invoice melalui Email dan pesan konfirmasi otomatis melalui WhatsApp (via **Fonnte**).
+- **Pusat Bantuan dan Form Keluhan**: Tautan obrolan langsung WhatsApp Customer Service serta **Form Keluhan Tiket CS** yang mendukung lampiran bukti transfer atau tangkapan layar (format JPG, PNG, WEBP hingga 2MB).
+- **Halaman Konten Statis**: Halaman FAQ berbasis accordion interaktif, Syarat dan Ketentuan, serta Kebijakan Privasi yang dapat dikelola dinamis dari admin.
 
-### Sisi Admin (`/admin`)
-- Dashboard dengan KPI harian (sales, profit, pending, success ratio), grafik tren, dan best seller
-- Manajemen Games, Categories, Products & SKU, Banner, Flash Sale
-- Manajemen Orders (lihat detail, retry, force success)
-- Manajemen Voucher
-- **Keluhan Customer** — tiket dari form keluhan customer, bisa diubah status (Baru/Diproses/Selesai) oleh role CS
-- Manajemen User & role (bulk update role)
-- Laporan: Sales & Revenue, Profit Margin, Provider Performance, Product Performance (dengan filter tanggal & export)
-- Audit Log — mencatat setiap perubahan penting yang dilakukan staff
-- FAQ & CMS Page management
-- IP Whitelist untuk akses dashboard admin (opsional, lewat `ADMIN_ALLOWED_IPS`)
+### Sisi Administrator (/admin)
+- **Dashboard Analitis dan KPI**: Ringkasan performa harian (Penjualan Hari Ini, Profit Hari Ini, Jumlah Pending/Diproses, dan Rasio Keberhasilan/Success Ratio), indikator produk terlaris (Best Seller), serta grafik tren penjualan interaktif (**Chart.js 4**) dengan opsi rentang waktu (Jam, Harian, Mingguan, Bulanan, Tahunan).
+- **Manajemen Transaksi (Orders)**: Pemantauan detail transaksi, antrean pengulangan otomatis/manual (*Retry Queue*), pengiriman ulang webhook callback, pengecekan status pembayaran manual ke gateway, serta fitur penyelesaian manual (*Force Success*).
+- **Manajemen Katalog Game, Kategori, dan Produk**: Pengelolaan master data game, kategori (Diamond, Battle Pass, Skin), daftar produk, penentuan margin keuntungan, serta pemetaan SKU ke masing-masing provider.
+- **Manajemen Provider dan Prioritas**: Pengaturan status aktif/non-aktif provider top up serta penentuan urutan prioritas eksekusi provider (Priority Fallback System).
+- **Log API dan Webhook**: Pemantauan catatan aktivitas panggilan API keluar ke provider serta data webhook masuk dari payment gateway untuk kebutuhan diagnosa teknis.
+- **Manajemen Voucher dan Flash Sale**: Pembuatan kode promo diskon dengan batasan kuota dan minimal transaksi, serta pengaturan periode acara Flash Sale.
+- **Manajemen Payment Gateway**: Pengaturan kunci enkripsi, kode merchant, status sandbox/produksi, dan saklar aktifasi untuk Midtrans, Duitku, dan Tripay.
+- **Manajemen Tiket Keluhan Customer**: Panel khusus tim CS untuk menindaklanjuti keluhan dari pelanggan dengan pembaruan status (Baru, Diproses, Selesai).
+- **Manajemen Pengguna dan Hak Akses**: Pengelolaan data pengguna, pembaruan role secara massal (bulk update role), serta pemblokiran/pembukaan blokir akun pengguna.
+- **Laporan dan Ekspor Data**: Laporan Penjualan & Pendapatan, Margin Keuntungan, Performa Provider, dan Performa Produk dengan filter rentang tanggal serta fitur ekspor data ke format CSV.
+- **Audit Log System**: Pencatatan riwayat setiap aksi dan perubahan data yang dilakukan oleh staf internal secara transparan.
+- **Keamanan Akses Dashboard**: Restriksi alamat IP khusus untuk mengakses antarmuka admin via middleware `restrict_admin_ip`.
 
 ---
 
 ## Tech Stack
 
-| Layer | Teknologi |
+| Komponen | Teknologi |
 |---|---|
-| Backend | Laravel 13 (PHP) |
-| Autentikasi & Role | Laravel Auth + [spatie/laravel-permission](https://spatie.be/docs/laravel-permission) |
-| Frontend | Blade + Bootstrap 5.3 (CDN) + Bootstrap Icons |
-| Chart admin | Chart.js 4 (CDN) |
+| Backend Framework | Laravel 13 (PHP 8.2+) |
+| Autentikasi & Otorisasi | Laravel Auth, Laravel Sanctum, spatie/laravel-permission |
+| Frontend UI | Blade Templating, Bootstrap 5.3 (CDN), Bootstrap Icons |
+| Grafik Dashboard | Chart.js 4 (CDN) |
 | Payment Gateway | Midtrans, Duitku, Tripay |
-| Provider Top Up | Digiflazz, VIP Reseller |
-| Notifikasi WA | Fonnte |
-| Font | Baloo 2 (heading), Plus Jakarta Sans (body) — via Google Fonts |
+| Provider Top Up | Digiflazz, VIP Reseller, Mock Provider |
+| Notifikasi WhatsApp | Fonnte API |
+| Tipografi | Google Fonts (Baloo 2 & Plus Jakarta Sans) |
 
 ---
 
-## Struktur Folder Penting
+## Struktur Folder Utama
 
-```
+```text
 app/
-├── Console/Commands/       # SyncProductPrices, DigiflazzTestConnection
+├── Console/Commands/       # Perintah artisan (SyncProductPrices, DigiflazzTestConnection)
 ├── Http/Controllers/
-│   ├── Admin/              # Controller khusus dashboard admin
-│   └── ...                 # Controller customer-facing (Page, Complaint, dll)
-├── Jobs/                   # ProcessTopUpOrder (proses top up async)
-├── Models/                 # Order, Product, Game, Complaint, Voucher, dll
+│   ├── Admin/              # Controller dashboard admin (Dashboard, Order, Game, Report, dll)
+│   ├── Api/                # Controller REST API (v1)
+│   ├── Auth/               # Controller autentikasi (Login, Register, 2FA, Google OAuth)
+│   └── Customer/           # Controller sisi pelanggan (AccountController)
+├── Jobs/                   # ProcessTopUpOrder (pemrosesan order top up secara asinkron)
+├── Models/                 # Model Eloquent (Order, Product, Game, Complaint, Voucher, Provider, dll)
 ├── Notifications/          # OrderSuccessNotification, AdminOtpNotification
-├── Providers/               # Integrasi provider top up (Digiflazz, VIP Reseller)
+├── Providers/               # Provider Service (DigiflazzService, VipResellerService, MockService)
 └── Services/
-    ├── PaymentGateways/    # Midtrans, Duitku, Tripay
-    ├── AuditLogService.php
-    ├── OrderService.php
-    ├── ReportService.php
-    ├── TwoFactorService.php
-    └── VoucherService.php
+    ├── PaymentGateways/    # Service Payment Gateway (Midtrans, Duitku, Tripay)
+    ├── AuditLogService.php # Pencatatan audit log staf
+    ├── OrderService.php    # Pemrosesan logika pesanan dan checkout
+    ├── ReportService.php   # Agregasi laporan dan kalkulasi keuangan
+    └── VoucherService.php  # Validasi dan kalkulasi diskon promo
 
 resources/views/
-├── admin/                  # Semua view dashboard admin
-├── auth/                   # Login, register, 2FA
-├── customer/                # Home, game-detail, contact, complaint-form, static-page, dll
-└── layouts/                 # customer.blade.php, admin.blade.php, auth.blade.php
+├── admin/                  # Seluruh tampilan Blade dashboard administrator
+├── auth/                   # Halaman autentikasi (login, register, 2FA OTP)
+├── customer/                # Halaman beranda, detail game, cek transaksi, kontak, keluhan
+└── layouts/                 # Master layout (customer.blade.php, admin.blade.php, auth.blade.php)
 
 public/css/
-├── app-custom.css           # Base style (variabel warna, komponen umum)
-├── site-chrome.css          # Navbar & footer (varian terang, ditimpa dark-theme)
-├── dark-theme.css           # Tema gelap final — di-load PALING TERAKHIR,
-│                             # jadi selalu jadi pemenang cascade untuk warna
-├── home-theme.css           # Penyesuaian khusus halaman beranda
-├── order-status-theme.css   # Penyesuaian khusus halaman cek transaksi
-├── auth-theme.css           # Layout login/register/2FA
-└── admin-custom.css         # Style khusus dashboard admin
-
-database/
-├── migrations/
-└── seeders/                 # CmsSeeder, PermissionSeeder, RoleSeeder, AdminUserSeeder, dll
+├── app-custom.css           # Variabel utama dan style komponen umum
+├── site-chrome.css          # Gaya navigasi navbar dan footer
+├── dark-theme.css           # Tema gelap utama untuk sisi customer
+├── home-theme.css           # Styling khusus halaman beranda
+├── order-status-theme.css   # Styling khusus halaman cek status transaksi
+├── auth-theme.css           # Styling khusus halaman login, register, dan 2FA
+└── admin-custom.css         # Styling khusus dashboard admin (tema indigo-cyan)
 ```
 
 ---
 
-## Role & Permission
+## Role dan Hak Akses (Role & Permission)
 
-Dikelola lewat `spatie/laravel-permission`. Role yang tersedia (lihat `database/seeders/RoleSeeder.php` & `PermissionSeeder.php`):
+Hak akses pengelolaan dikontrol menggunakan pustaka `spatie/laravel-permission`. Pembagian wewenang role yang tersedia adalah sebagai berikut:
 
-| Role | Akses |
+| Role | Cakupan Hak Akses |
 |---|---|
-| `owner` | Semua permission (`*`) |
-| `admin` | Semua permission (`*`) |
-| `finance` | Dashboard, laporan, lihat order, force-success order |
-| `cs` | Dashboard, lihat/retry order, **kelola Keluhan Customer** |
-| `marketing` | Sesuai konfigurasi di `PermissionSeeder.php` |
-| `developer` | Sesuai konfigurasi di `PermissionSeeder.php` |
-
-Middleware `role:...` dan `permission:...` dipakai di `routes/web.php` untuk membatasi akses tiap grup route admin.
+| `owner` | Akses penuh ke seluruh fitur sistem (`*`) |
+| `admin` | Akses penuh ke seluruh fitur sistem (`*`) |
+| `finance` | Akses Dashboard, Laporan Keuangan, Lihat Transaksi, dan Penyelesaian Manual (*Force Success*) |
+| `cs` | Akses Dashboard, Lihat Transaksi, Pengulangan Order (*Retry Order*), dan Kelola Tiket Keluhan Customer |
+| `marketing` | Akses Dashboard, Kelola Voucher Promo, Kelola Flash Sale, dan Kelola Spanduk/FAQ/Halaman CMS |
+| `developer` | Akses Dashboard, Kelola Provider Top Up, Lihat Log API & Webhook, dan Pengaturan Payment Gateway |
 
 ---
 
-## Instalasi
+## Panduan Instalasi
 
-> Project ini di-develop di lingkungan XAMPP (Windows) dengan MySQL. Sesuaikan langkah di bawah dengan environment kamu.
+Berikut adalah langkah-langkah instalasi aplikasi di lingkungan lokal:
 
-1. **Clone / salin project**, lalu install dependency:
+1. **Clone atau Salin Repositori Project**, kemudian masuk ke direktori proyek dan pasang dependensi:
    ```bash
    composer install
-   npm install    # kalau ada build asset frontend tambahan
+   npm install
    ```
 
-2. **Salin `.env`** dan sesuaikan koneksi database + kredensial di bawah (lihat bagian [Environment Variables](#environment-variables-penting)):
+2. **Konfigurasi Environment**:
+   Salin file `.env.example` menjadi `.env`, lalu buat kunci aplikasi:
    ```bash
    cp .env.example .env
    php artisan key:generate
    ```
 
-3. **Migrasi & seed database**:
+3. **Pengaturan Database dan Migrasi**:
+   Sesuaikan konfigurasi koneksi database di file `.env`, kemudian jalankan perintah migrasi beserta seeder:
    ```bash
    php artisan migrate --seed
    ```
-   Atau kalau database sudah ada isinya sebelumnya dan hanya perlu update seeder tertentu:
-   ```bash
-   php artisan db:seed --class=PermissionSeeder
-   php artisan db:seed --class=CmsSeeder
-   ```
 
-4. **Buat symlink storage** (wajib, supaya gambar banner/game/lampiran keluhan bisa diakses publik):
+4. **Tautan Penyimpanan Media (Storage Link)**:
+   Buat tautan simbolik direktori penyimpanan agar gambar game, banner, dan lampiran keluhan dapat diakses secara publik:
    ```bash
    php artisan storage:link
    ```
 
-5. **Jalankan queue worker** (untuk proses top up async & notifikasi):
+5. **Jalankan Queue Worker**:
+   Jalankan pemroses antrean untuk menangani proses pengiriman item top up dan notifikasi secara asinkron:
    ```bash
    php artisan queue:work
    ```
 
-6. **Jalankan server lokal**:
+6. **Jalankan Server Lokal**:
    ```bash
    php artisan serve
    ```
-
-7. Login admin pertama kali menggunakan akun dari `AdminUserSeeder` (cek isi seeder tersebut untuk kredensial default), lalu segera ganti password-nya.
 
 ---
 
 ## Environment Variables Penting
 
-Selain variabel standar Laravel (`APP_*`, `DB_*`, `MAIL_*`), project ini membutuhkan:
+Isi variabel berikut pada file `.env` sesuai dengan penyedia layanan yang digunakan:
 
 ```env
-# Payment Gateway
+# Koneksi Database
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=website_top_up_game
+DB_USERNAME=root
+DB_PASSWORD=
+
+# Payment Gateway (Midtrans)
 MIDTRANS_SERVER_KEY=
 MIDTRANS_CLIENT_KEY=
 MIDTRANS_IS_PRODUCTION=false
 MIDTRANS_IS_SANITIZED=true
 MIDTRANS_IS_3DS=true
 
-# Provider Top Up
+# Top Up Provider (Digiflazz)
 DIGIFLAZZ_WEBHOOK_SECRET=
 
-# WhatsApp Notification (Fonnte)
+# Notifikasi WhatsApp (Fonnte)
 FONNTE_TOKEN=
 SUPPORT_WHATSAPP_NUMBER=
 
-# Kontak & Sosial Media (ditampilkan di footer & halaman Hubungi Kami)
+# Informasi Kontak Support (Tampil di Footer dan Halaman Hubungi Kami)
 SUPPORT_EMAIL=cs@topupkilat.test
 SUPPORT_INSTAGRAM=@topupkilat
 SUPPORT_FACEBOOK=https://facebook.com/topupkilat
 SUPPORT_TIKTOK=@topupkilat
 
-# reCAPTCHA v3
+# Keamanan Google reCAPTCHA v3
 RECAPTCHA_SITE_KEY=
 RECAPTCHA_SECRET_KEY=
 
-# Keamanan Dashboard Admin (opsional — kosongkan untuk nonaktifkan whitelist)
+# Keamanan Dashboard Admin (Kosongkan jika tidak menggunakan pembatasan IP)
 ADMIN_ALLOWED_IPS=
 ```
 
-> Jangan hardcode nilai-nilai di atas langsung ke file config. Semua sudah dibungkus `env()` di `config/*.php` — cukup isi `.env`.
-
 ---
 
-## Alur Kerja Order (Ringkas)
+## Alur Kerja Transaksi (Order Lifecycle)
 
-1. Customer pilih produk di halaman game detail → isi ID game → checkout.
-2. Order dibuat dengan status `pending_payment`, lalu diarahkan ke payment gateway yang aktif.
-3. Setelah pembayaran dikonfirmasi (webhook payment gateway), status order menjadi `paid`, dan `ProcessTopUpOrder` job dikirim ke queue.
-4. Job memanggil provider top up (Digiflazz/VIP Reseller) untuk memproses pengiriman item ke akun game.
-5. Jika sukses → status `success`, customer dapat `OrderSuccessNotification` (email) + notifikasi WhatsApp; jika gagal → admin/CS bisa **retry** atau **force success** manual dari dashboard admin.
-6. Semua perubahan status oleh staff tercatat di **Audit Log**.
+1. **Inisiasi Pesanan**: Pelanggan memilih produk pada halaman detail game, memasukkan data akun (ID Game/Server), lalu menekan tombol pembayar.
+2. **Pembuatan Pesanan**: Sistem menyimpan pesanan dengan status `pending_payment` dan menampilkan popup / mengarahkan ke halaman pembayaran gateway.
+3. **Konfirmasi Pembayaran**: Setelah pembayaran diselesaikan oleh pelanggan, payment gateway mengirimkan notifikasi Webhook ke sistem. Status pesanan diperbarui menjadi `paid` dan tugas `ProcessTopUpOrder` dikirimkan ke antrean (queue).
+4. **Eksekusi Top Up**: Pekerjaan antrean memanggil API Provider Top Up (Digiflazz / VIP Reseller / Mock) sesuai dengan tingkat prioritas provider yang aktif.
+5. **Penyelesaian**:
+   - Jika provider mengembalikan status sukses: Pesanan diperbarui menjadi `success`, lalu notifikasi email dan WhatsApp dikirimkan ke pelanggan.
+   - Jika provider mengalami kendala: Pesanan berstatus `failed` atau `processing`, dan staf CS/Admin dapat melakukan *Retry Order* atau *Force Success* melalui dashboard admin.
+6. **Pencatatan Audit**: Setiap perubahan status pesanan oleh staf terekam secara otomatis pada Audit Log.
 
 ---
 
 ## Perintah Artisan Kustom
 
-| Command | Fungsi |
+| Perintah | Fungsi |
 |---|---|
-| `php artisan sync:product-prices` | Sinkronisasi harga produk dari provider (`SyncProductPrices`) |
-| `php artisan digiflazz:test-connection` | Tes koneksi ke API Digiflazz (`DigiflazzTestConnection`) |
+| `php artisan sync:product-prices` | Sinkronisasi harga modal produk secara otomatis dari provider top up |
+| `php artisan digiflazz:test-connection` | Pengujian koneksi API dan validasi kredensial ke layanan Digiflazz |
 
 ---
 
-## Tema & Styling
+## Skema Tema dan Styling
 
-- Tema visual final situs adalah **dark theme** (ungu gelap + aksen kuning/pink/mint). File `dark-theme.css` di-load paling terakhir di `<head>` sehingga variabel warnanya (`--color-surface`, `--color-text-*`, dll) selalu menimpa file lain — ini disengaja agar konsisten dan gampang dirawat: **kalau mau ubah warna, cukup ubah `dark-theme.css`.**
-- Semua state `:hover` elemen interaktif customer-facing sudah dipastikan kontras terhadap background gelap (lihat blok "PERBAIKAN SEMUA STATE :hover" di bagian akhir `dark-theme.css`).
-- Untuk halaman admin, skema warna diatur terpisah di `admin-custom.css` (palet indigo/cyan, latar terang) — tidak terpengaruh `dark-theme.css`.
-
----
-
-## Kontribusi
-
-1. Buat branch baru dari `main`/`develop` sesuai fitur/perbaikan yang dikerjakan.
-2. Ikuti konvensi kode yang sudah ada (nama variabel, struktur controller, pola `env()` di `config/*.php`).
-3. Jalankan `php artisan migrate --seed` di environment lokal sebelum submit perubahan yang menyentuh database.
-4. Pastikan tidak ada credential/API key yang ikut ter-commit.
+- **Antarmuka Pelanggan (Customer)**: Menggunakan skema warna tema gelap (*dark theme*) yang didefinisikan pada file `public/css/dark-theme.css`. File ini dimuat di urutan terakhir pada tag `<head>` untuk memastikan konsistensi variabel warna seperti `--color-surface`, `--color-accent-yellow`, dan `--color-text-light`.
+- **Antarmuka Administrator (Admin)**: Menggunakan skema warna terang beraksen indigo-cyan yang diatur secara terpisah pada file `public/css/admin-custom.css`, sehingga pengelolaan halaman admin terisolasi dari gaya halaman publik pelanggan.
